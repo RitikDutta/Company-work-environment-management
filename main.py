@@ -1,4 +1,4 @@
-from collect_pose_to_csv import prediction
+from data_collector import Data_collection
 
-collection = prediction("working")
+collection = Data_collection("working")
 collection.pose_collection()

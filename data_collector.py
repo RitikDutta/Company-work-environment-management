@@ -2,19 +2,19 @@ import cv2
 import mediapipe as mp
 import time
 import mediapipe.framework.formats.landmark_pb2 as landmark_pb2
-from data_validation import mediapipe_object_to_csv
+from data_collection.mp_object_to_csv import Converter
 
 
-
-
-class prediction:
-
+class Data_collection:
     def __init__(self, class_name):
         self.class_name=class_name
         self.mp_drawing = mp.solutions.drawing_utils
         self.mp_drawing_styles = mp.solutions.drawing_styles
         self.mp_pose = mp.solutions.pose
-        # self.landmarks1 = landmark_pb2.NormalizedLandmarkList()
+        self.mp_pose
+        self.path = 'landmarks.csv'
+        self.convertor = Converter(self.path)
+        # self.landmarks = landmark_pb2.NormalizedLandmarkList()
 
 
     def pose_collection(self):
@@ -68,7 +68,7 @@ class prediction:
 
                 print(type(results.pose_landmarks))
                 if results.pose_landmarks is not None:
-                    write_dict_list_to_csv(results.pose_landmarks.landmark, self.class_name, 'landmarks.csv')
+                    self.convertor.convert_mp_to_csv(results.pose_landmarks.landmark, self.class_name)
                     sets+=1
             #     print(results.pose_landmarks)
                 if cv2.waitKey(5) & 0xFF == 27:

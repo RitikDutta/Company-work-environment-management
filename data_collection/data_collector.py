@@ -32,7 +32,7 @@ class Data_collection:
                 Output: None
                 On Failure: Raise Exception
 
-                Written By: Ritik Dutta
+                Written By: Google MediaPipe, Ritik Dutta
                 Version: 1.0
                 Revisions: None
 

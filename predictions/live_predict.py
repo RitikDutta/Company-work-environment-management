@@ -26,12 +26,11 @@ class LivePredict:
                 Output: None
                 On Failure: Raise Exception
 
-                Written By: Ritik Dutta
+                Written By: Google Mediapipe, Ritik Dutta
                 Version: 1.0
                 Revisions: None
 
                         """
-        prediction = Prediction()
         mp_drawing = mp.solutions.drawing_utils
         mp_drawing_styles = mp.solutions.drawing_styles
         mp_pose = mp.solutions.pose
@@ -55,38 +54,28 @@ class LivePredict:
             if not success:
               print("Ignoring empty camera frame.")
               predicted = 'empty'
-              # If loading a video, use 'break' instead of 'continue'.
               continue
             # To improve performance, optionally mark the image as not writeable to
-            # pass by reference.
             image.flags.writeable = False
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             results = pose.process(image)
             cv2.putText(image, predicted, (300, 100), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 3, cv2.LINE_AA)
-        #     time.sleep(1)
             
             # Draw the pose annotation on the image.
             image.flags.writeable = False
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        #     text_flipped = cv2.flip(image, 1)
-        #     image = cv2.flip(image, 1)
             mp_drawing.draw_landmarks(
                     image,
                 results.pose_landmarks,
                 mp_pose.POSE_CONNECTIONS,
                 landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
-            # Flip the image horizontally for a selfie-view display.
-        #     image = cv2.flip(image, 1)
             cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
             cv2.setWindowProperty("MediaPipe Pose", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
             i+=1
             if (results.pose_landmarks is not None):
                 if i >=20:
-        #         write_dict_list_to_csv(results.pose_landmarks.landmark, class_name, 'landmarks.csv')
                     predicted = self.prediction.predict(results.pose_landmarks.landmark)
-        #             print(results.pose_landmarks)
-                    sets+=1
-                    print(f"sets collected {sets}")
+                    print("prediction class:", predicted)
                     i=0
         #     print(results.pose_landmarks)
             if cv2.waitKey(5) & 0xFF == 27:

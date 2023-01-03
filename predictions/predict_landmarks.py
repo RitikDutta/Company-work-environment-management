@@ -19,7 +19,7 @@ class Prediction:
     def __init__(self):
         self.convertor = Converter()
         # Load the model
-        self.model = load_model('model1.h5')
+        self.model = load_model('models/model1.h5')
 
         self.landmark = landmark_pb2.NormalizedLandmarkList()
     def predict(self, landmark):

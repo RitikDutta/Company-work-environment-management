@@ -1,5 +1,5 @@
 from data_collection.data_collector import Data_collection
-from live_predict import LivePredict
+from predictions.live_predict import LivePredict
 import sys
 
 

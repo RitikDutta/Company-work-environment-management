@@ -9,16 +9,16 @@ class Converter:
                Version: 1.0
                Revisions: None
 
-               """
+    """
 
-    def __init__(self, path):
-        self.path = path
+    def __init__(self):
+        # self.path = path
         # self.class_name = class_name
         self.landmarks = landmark_pb2.NormalizedLandmarkList()
 
 
 
-    def convert_mp_to_csv(self, landmarks, class_name):
+    def convert_mp_to_csv(self, landmarks, class_name, path):
         """
                 Method Name: convert_mp_to_csv
                 Description: This method converts MediaPipe object to csv file for easy handling of data and training.
@@ -32,7 +32,7 @@ class Converter:
                         """
         try:
           # Open the CSV file for writing in append mode
-            with open(self.path, 'a+', newline='') as csvfile:
+            with open(path, 'a+', newline='') as csvfile:
                 fieldnames = []
                 for i in range(len(landmarks)):
                     fieldnames.extend([f"x{i+1}", f"y{i+1}", f"z{i+1}", f"visibility{i+1}"])
@@ -63,18 +63,18 @@ class Converter:
             raise e
 
 
-        def convert_mp_to_dataframe(self, landmarks):
+    def convert_mp_to_dataframe(self, landmarks):
         """
-                Method Name: convert_mp_to_csv
-                Description: This method converts MediaPipe object to pandas dataframe for easy handling of data and training.
-                Output: None
-                On Failure: Raise Exception
+            Method Name: convert_mp_to_csv
+            Description: This method converts MediaPipe object to pandas dataframe for easy handling of data and training.
+            Output: None
+            On Failure: Raise Exception
 
-                Written By: Ritik Dutta
-                Version: 1.0
-                Revisions: None
+            Written By: Ritik Dutta
+            Version: 1.0
+            Revisions: None
 
-                        """
+                    """
         try:
             # Check None values
             if not landmarks or None in landmarks:

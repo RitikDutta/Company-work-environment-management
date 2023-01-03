@@ -21,7 +21,7 @@ class Data_collection:
         self.mp_pose = mp.solutions.pose
         self.mp_pose
         self.path = 'raw data/training/landmarks.csv'
-        self.convertor = Converter(self.path)
+        self.convertor = Converter()
         # self.landmarks = landmark_pb2.NormalizedLandmarkList()
 
 
@@ -87,7 +87,7 @@ class Data_collection:
 
                 print(type(results.pose_landmarks))
                 if results.pose_landmarks is not None:
-                    self.convertor.convert_mp_to_csv(results.pose_landmarks.landmark, self.class_name)
+                    self.convertor.convert_mp_to_csv(results.pose_landmarks.landmark, self.class_name, self.path)
                     sets+=1
             #     print(results.pose_landmarks)
                 if cv2.waitKey(5) & 0xFF == 27:

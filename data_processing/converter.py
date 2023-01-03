@@ -63,6 +63,40 @@ class Converter:
             raise e
 
 
+        def convert_mp_to_dataframe(self, landmarks):
+        """
+                Method Name: convert_mp_to_csv
+                Description: This method converts MediaPipe object to pandas dataframe for easy handling of data and training.
+                Output: None
+                On Failure: Raise Exception
+
+                Written By: Ritik Dutta
+                Version: 1.0
+                Revisions: None
+
+                        """
+        try:
+            # Check None values
+            if not landmarks or None in landmarks:
+                return pd.DataFrame()
+            
+            # Create a dictionary with the values of each NormalizedLandmark object in the list
+            row = {}
+            for i in range(len(landmarks)):
+                normalized_landmark = landmarks[i]
+                row[f"x{i+1}"] = normalized_landmark.x
+                row[f"y{i+1}"] = normalized_landmark.y
+                row[f"z{i+1}"] = normalized_landmark.z
+                row[f"visibility{i+1}"] = normalized_landmark.visibility
+            
+            # Create pandas dataframe from the dictionary
+            df = pd.DataFrame([row])
+            return df
+        except Exception as e:
+            raise e
+
+
+
 
 
 

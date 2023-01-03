@@ -2,7 +2,7 @@ import cv2
 import mediapipe as mp
 import time
 import mediapipe.framework.formats.landmark_pb2 as landmark_pb2
-from data_processing.mp_object_to_csv import Converter
+from data_processing.converter import Converter
 
 
 class Data_collection:

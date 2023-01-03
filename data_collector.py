@@ -12,7 +12,7 @@ class Data_collection:
         self.mp_drawing_styles = mp.solutions.drawing_styles
         self.mp_pose = mp.solutions.pose
         self.mp_pose
-        self.path = 'landmarks.csv'
+        self.path = 'raw data/training/landmarks.csv'
         self.convertor = Converter(self.path)
         # self.landmarks = landmark_pb2.NormalizedLandmarkList()
 
@@ -26,7 +26,7 @@ class Data_collection:
             #     class_name = "working"
 
             #adds a countdown to get user in position for pose collection
-            t=1
+            t=5
             print("running pose collection in \n \tpress Esc to close")
             while t > 0:
                     print(t)

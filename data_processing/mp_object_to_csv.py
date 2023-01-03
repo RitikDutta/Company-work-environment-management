@@ -20,16 +20,16 @@ class Converter:
 
     def convert_mp_to_csv(self, landmarks, class_name):
         """
-                                Method Name: convert_mp_to_csv
-                                Description: This method converts MediaPipe object to csv file for easy handling of data and training.
-                                Output: None
-                                On Failure: Raise Exception
+                Method Name: convert_mp_to_csv
+                Description: This method converts MediaPipe object to csv file for easy handling of data and training.
+                Output: None
+                On Failure: Raise Exception
 
-                                Written By: Ritik Dutta
-                                Version: 1.0
-                                Revisions: None
+                Written By: Ritik Dutta
+                Version: 1.0
+                Revisions: None
 
-                                        """
+                        """
         try:
           # Open the CSV file for writing in append mode
             with open(self.path, 'a+', newline='') as csvfile:

@@ -6,6 +6,14 @@ from data_processing.mp_object_to_csv import Converter
 
 
 class Data_collection:
+    """
+               This class shall be used for collection for body position landmarks (eg: x,y,z co-ordinates of nose, hands, visibility in frame).
+
+               Written By: Ritik Dutta
+               Version: 1.0
+               Revisions: None
+
+               """
     def __init__(self, class_name):
         self.class_name=class_name
         self.mp_drawing = mp.solutions.drawing_utils
@@ -18,6 +26,17 @@ class Data_collection:
 
 
     def pose_collection(self):
+        """
+                Method Name: pose_collection
+                Description: This method opens up webcam and collects landmarks co-ordinates data.
+                Output: None
+                On Failure: Raise Exception
+
+                Written By: Ritik Dutta
+                Version: 1.0
+                Revisions: None
+
+                        """
 
         try:
             #get a class name otherwise assign classname as working

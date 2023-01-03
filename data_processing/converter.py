@@ -1,4 +1,5 @@
 import mediapipe.framework.formats.landmark_pb2 as landmark_pb2
+import pandas as pd
 import csv
 
 class Converter:
@@ -15,7 +16,6 @@ class Converter:
         # self.path = path
         # self.class_name = class_name
         self.landmarks = landmark_pb2.NormalizedLandmarkList()
-
 
 
     def convert_mp_to_csv(self, landmarks, class_name, path):

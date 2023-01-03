@@ -1,5 +1,10 @@
 import numpy as np
 from data_processing.converter import Converter
+import pandas as pd
+import mediapipe.framework.formats.landmark_pb2 as landmark_pb2
+import tensorflow as tf
+from tensorflow import keras
+from keras.models import load_model
 
 class Prediction:
     """
@@ -10,32 +15,42 @@ class Prediction:
                Revisions: None
 
                """
-def predict(landmark):
+
+    def __init__(self):
+        self.convertor = Converter()
+        # Load the model
+        self.model = load_model('model1.h5')
+
+        self.landmark = landmark_pb2.NormalizedLandmarkList()
+    def predict(self, landmark):
         """
-                Method Name: predict
-                Description: This method predict the class from landmark data.
-                Output: None
-                On Failure: Raise Exception
+                    Method Name: predict
+                    Description: This method predict the class from landmark data.
+                    Output: None
+                    On Failure: Raise Exception
+    
+                    Written By: Ritik Dutta
+                    Version: 1.0
+                    Revisions: None
+    
+        """
+        x = self.convertor.convert_mp_to_dataframe(landmark)
+        x = pd.DataFrame(x.iloc[0:].values.reshape(1, -1))
+        x = x.apply(pd.to_numeric, errors='coerce', downcast='float')
+        class_labels = {0: 'away', 1: 'phone', 2: 'working'}
 
-                Written By: Ritik Dutta
-                Version: 1.0
-                Revisions: None
-
-                        """
-    x = convert_mp_to_dataframe(landmark)
-    x = pd.DataFrame(x.iloc[0:].values.reshape(1, -1))
-    x = x.apply(pd.to_numeric, errors='coerce', downcast='float')
-    class_labels = {0: 'away', 1: 'phone', 2: 'working'}
-
-    # Make a prediction
-    prediction = model.predict(x)
-
-    # Find the index of the highest probability
-    class_index = np.argmax(prediction)
-
-    # Look up the class label in the dictionary
-    class_label = class_labels[class_index]
-
-    # Print the class label
-#     print("Class label:", class_label)
-    return class_label 
+        
+    
+        # Make a prediction
+        prediction = self.model.predict(x)
+    
+        # Find the index of the highest probability
+        class_index = np.argmax(prediction)
+    
+        # Look up the class label in the dictionary
+        class_label = class_labels[class_index]
+    
+        # Print the class label
+    #     print("Class label:", class_label)
+        return class_label 
+    

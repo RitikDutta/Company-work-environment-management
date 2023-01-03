@@ -1,4 +1,4 @@
-from data_collector import Data_collection
+from data_collection.data_collector import Data_collection
 import sys
 
 

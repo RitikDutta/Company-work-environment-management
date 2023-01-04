@@ -22,7 +22,7 @@ class Prediction:
         self.model = load_model('models/model1.h5')
 
         self.landmark = landmark_pb2.NormalizedLandmarkList()
-    def predict(self, landmark):
+    def predict(self, landmark, landmark_dataframe=''):
         """
                     Method Name: predict
                     Description: This method predict the class from landmark data.
@@ -34,9 +34,13 @@ class Prediction:
                     Revisions: None
     
         """
-        x = self.convertor.convert_mp_to_dataframe(landmark)
-        x = pd.DataFrame(x.iloc[0:].values.reshape(1, -1))
-        x = x.apply(pd.to_numeric, errors='coerce', downcast='float')
+        if landmark_dataframe != '':
+            x = landmark_dataframe
+        else
+            x = self.convertor.convert_mp_to_dataframe(landmark)
+            x = pd.DataFrame(x.iloc[0:].values.reshape(1, -1))
+            x = x.apply(pd.to_numeric, errors='coerce', downcast='float')
+        
         class_labels = {0: 'away', 1: 'phone', 2: 'working'}
 
         

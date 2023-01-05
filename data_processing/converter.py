@@ -13,9 +13,10 @@ class Converter:
     """
 
     def __init__(self):
+        pass
         # self.path = path
         # self.class_name = class_name
-        self.landmarks = landmark_pb2.NormalizedLandmarkList()
+        # self.landmarks = landmark_pb2.NormalizedLandmarkList()
 
 
     def convert_mp_to_csv(self, landmarks, class_name, path):
@@ -95,6 +96,32 @@ class Converter:
         except Exception as e:
             raise e
 
+
+
+    def convert_dict_to_dataframe(self, landmark_dict):
+            """
+                Method Name: convert_dict_to_dataframe
+                Description: This method converts dictonary to pandas dataframe fetched from get request from flask webpage.
+                Output: None
+                On Failure: Raise Exception
+
+                Written By: Ritik Dutta
+                Version: 1.0
+                Revisions: None
+
+                        """
+            try:
+                x = landmark_dict
+                columns = []
+                data = []
+                for i in range(len(x['landmarks'])):
+                    columns.extend([f"x{i+1}", f"y{i+1}", f"z{i+1}", f"visibility{i+1}"])
+                    data.extend([x['landmarks'][i]['x'], x['landmarks'][i]['y'], x['landmarks'][i]['z'], x['landmarks'][i]['visibility']])
+                df = pd.DataFrame(data=[data], columns=columns)
+
+                return df
+            except Exception as e:
+                raise e
 
 
 

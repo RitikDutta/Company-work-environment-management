@@ -14,7 +14,7 @@ def index():
 def process_landmarks():
     landmarks = request.get_json()
     # time.sleep(5)
-    print(prediction.predict2(request.get_json()))
+    print(prediction.predict(request.get_json()))
     return jsonify({'status': 'Success'})
 
 if __name__ == '__main__':

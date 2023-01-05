@@ -21,8 +21,8 @@ class Prediction:
         # Load the model
         self.model = load_model('models/model1.h5')
 
-        self.landmark = landmark_pb2.NormalizedLandmarkList()
-    def predict(self, landmark, landmark_dataframe=''):
+        # self.landmark = landmark_pb2.NormalizedLandmarkList()
+    def predict(self, landmark):
         """
                     Method Name: predict
                     Description: This method predict the class from landmark data.
@@ -34,13 +34,16 @@ class Prediction:
                     Revisions: None
     
         """
-        if landmark_dataframe != '':
-            x = landmark_dataframe
-        else
+        if isinstance(landmark, dict):
+            print("data frame")
+            x = self.convertor.convert_dict_to_dataframe(landmark)
+        else:
+            print("Pose object")
             x = self.convertor.convert_mp_to_dataframe(landmark)
             x = pd.DataFrame(x.iloc[0:].values.reshape(1, -1))
             x = x.apply(pd.to_numeric, errors='coerce', downcast='float')
-        
+        print(x.shape)
+
         class_labels = {0: 'away', 1: 'phone', 2: 'working'}
 
         

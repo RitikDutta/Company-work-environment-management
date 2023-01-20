@@ -19,7 +19,7 @@ class Prediction:
     def __init__(self):
         self.convertor = Converter()
         # Load the model
-        self.model = load_model('models/model1.h5')
+        self.model = load_model('models/face_model.h5')
 
         # self.landmark = landmark_pb2.NormalizedLandmarkList()
     def predict(self, landmark):
@@ -61,3 +61,36 @@ class Prediction:
     #     print("Class label:", class_label)
         return class_label 
     
+    def predict_face(self, landmark):
+        """
+                    Method Name: predict
+                    Description: This method predict the class from landmark data.
+                    Output: None
+                    On Failure: Raise Exception
+
+                    Written By: Ritik Dutta
+                    Version: 1.0
+                    Revisions: None
+
+        """
+        if isinstance(landmark, dict):
+            print("data frame")
+            x = self.convertor.convert_dict_to_dataframe(landmark)
+        else:
+            print("Pose object")
+            x = self.convertor.landmarks_to_df(landmark)
+        print(x.shape)
+
+        class_labels = {0: 'rakshit', 1: 'ritik'}
+        # Make a prediction
+        prediction = self.model.predict(x)
+    
+        # Find the index of the highest probability
+        class_index = np.argmax(prediction)
+    
+        # Look up the class label in the dictionary
+        class_label = class_labels[class_index]
+    
+        # Print the class label
+    #     print("Class label:", class_label)
+        return class_label 

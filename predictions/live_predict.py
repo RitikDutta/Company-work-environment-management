@@ -85,6 +85,8 @@ class LivePredict:
             if results.face_landmarks is not None and i >= 20:
                 if predict_type=="face":
                     predicted = self.prediction.predict_face(results.face_landmarks)
+                if predict_type=="pose":
+                    predicted = self.prediction.predict(results.pose_landmarks.landmark)
                 print(predicted)
                 sets+=1
                 i=0

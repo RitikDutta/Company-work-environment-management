@@ -92,8 +92,8 @@ class Converter:
                     """
         try:
             # Check None values
-            if not landmarks or None in landmarks:
-                return pd.DataFrame()
+            # if not landmarks or None in landmarks:
+            #     return pd.DataFrame()
             
             # Create a dictionary with the values of each NormalizedLandmark object in the list
             row = {}

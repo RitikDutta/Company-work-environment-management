@@ -140,7 +140,7 @@ class Converter:
 
 
     def landmarks_to_df(self, landmarks):
-        pca = load('models/pca.joblib')
+        pca = load('models/face_pca.joblib')
         landmarks = landmarks.landmark
         data = []
         row = {}

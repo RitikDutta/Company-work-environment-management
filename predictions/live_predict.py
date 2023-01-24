@@ -21,9 +21,6 @@ class LivePredict:
         self.mp_face_mesh = mp.solutions.face_mesh
         self.mp_holistic = mp.solutions.holistic
 
-            # self.landmarks = landmark_pb2.NormalizedLandmarkList()
-        # self.a='a'
-
     def live_predict(self, predict_type):
         """
                 Method Name: predict

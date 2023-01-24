@@ -20,7 +20,7 @@ class Prediction:
         self.convertor = Converter()
         # Load the model
         self.face_model = load_model('models/face_model.h5')
-        self.pose_model = load_model('models/model1.h5')
+        self.pose_model = load_model('models/face_model.h5')
 
 
         # self.landmark = landmark_pb2.NormalizedLandmarkList()

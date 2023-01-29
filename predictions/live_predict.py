@@ -14,14 +14,15 @@ class LivePredict:
 
                """
 
-    def __init__(self):
-        self.prediction = Prediction()
+    def __init__(self, predict_type):
+        self.predict_type = predict_type
+        self.prediction = Prediction(predict_type)
         self.mp_drawing = mp.solutions.drawing_utils
         self.mp_drawing_styles = mp.solutions.drawing_styles
         self.mp_face_mesh = mp.solutions.face_mesh
         self.mp_holistic = mp.solutions.holistic
 
-    def live_predict(self, predict_type):
+    def live_predict(self):
         """
                 Method Name: predict
                 Description: This method predict the class from landmark data.
@@ -80,9 +81,9 @@ class LivePredict:
 
             i+=1
             if results.face_landmarks is not None and i >= 20:
-                if predict_type=="face":
+                if self.predict_type=="face":
                     predicted = self.prediction.predict_face(results.face_landmarks)
-                if predict_type=="pose":
+                if self.predict_type=="pose":
                     predicted = self.prediction.predict(results.pose_landmarks.landmark)
                 print(predicted)
                 sets+=1

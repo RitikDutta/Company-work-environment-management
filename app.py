@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import pandas as pd
 from predictions.predict_landmarks import Prediction
-prediction = Prediction()
+prediction = Prediction("pose")
 import time
 app = Flask(__name__)
 

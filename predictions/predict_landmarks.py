@@ -16,14 +16,15 @@ class Prediction:
 
                """
 
-    def __init__(self):
-        self.convertor = Converter()
+    def __init__(self, predict_type):
+        self.predict_type = predict_type
+        self.convertor = Converter(self.predict_type)
         # Load the model
-        self.face_model = load_model('models/face_model.h5')
-        # self.pose_model = load_model('models/pose_model.h5')
+        if self.predict_type == "face":
+            self.face_model = load_model('models/face_model.h5')
+        elif self.predict_type == "pose":
+            self.pose_model = load_model('models/pose_model.h5')
 
-
-        # self.landmark = landmark_pb2.NormalizedLandmarkList()
     def predict(self, landmark):
         """
                     Method Name: predict

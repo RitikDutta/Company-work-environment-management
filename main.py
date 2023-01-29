@@ -13,8 +13,8 @@ def data_collection():
 
 
 def test_prediction():
-    prediction = LivePredict()
-    prediction.live_predict(sys.argv[2])
+    prediction = LivePredict(sys.argv[2])
+    prediction.live_predict()
 
 
 def train():

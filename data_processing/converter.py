@@ -15,11 +15,14 @@ class Converter:
 
     """
 
-    def __init__(self):
-        # self.face_pca = load('models/face_pca.joblib')
+    def __init__(self, predict_type):
+        self.predict_type = predict_type
+        if self.predict_type == "face":
+            self.face_pca = load('models/face_pca.joblib')
+        # elif self.predict_type == "pose":
+        #     self.pose_pca = load('models/pose_pca.joblib')
         # self.class_name = class_name
         # self.landmarks = landmark_pb2.NormalizedLandmarkList()
-        pass
     def convert_mp_to_csv(self, landmarks, landmark_type, class_name, path):
         """
                 Method Name: convert_mp_to_csv

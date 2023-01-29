@@ -20,7 +20,7 @@ class Prediction:
         self.convertor = Converter()
         # Load the model
         self.face_model = load_model('models/face_model.h5')
-        self.pose_model = load_model('models/face_model.h5')
+        # self.pose_model = load_model('models/pose_model.h5')
 
 
         # self.landmark = landmark_pb2.NormalizedLandmarkList()
@@ -83,10 +83,10 @@ class Prediction:
             x = self.convertor.landmarks_to_df(landmark)
         print(x.shape)
 
-        class_labels = {0: 'rakshit', 1: 'ritik'}
+        class_labels = {0: 'ritik', 1: 'rakshit'}
         # Make a prediction
         prediction = self.face_model.predict(x)
-    
+        print(max(prediction[0]))
         # Find the index of the highest probability
         class_index = np.argmax(prediction)
     
@@ -95,4 +95,5 @@ class Prediction:
     
         # Print the class label
     #     print("Class label:", class_label)
-        return class_label 
+        confidence = f"{class_label} {max(prediction[0]):.3f}"
+        return confidence

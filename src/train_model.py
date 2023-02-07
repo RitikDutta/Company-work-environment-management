@@ -1,19 +1,23 @@
+import pickle
 import joblib
+import numpy as np
 import pandas as pd
 import tensorflow as tf
-from tensorflow.keras.utils import to_categorical
-from keras.models import Sequential, load_model
-from keras.layers import Dense, BatchNormalization, Dropout, Flatten
-from tensorflow.keras.optimizers import SGD, Adam
-from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split
-
-from sklearn.decomposition import PCA
+from sklearn.svm import SVC
 import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import LabelEncoder
+from keras.models import Sequential, load_model
+from tensorflow.keras.optimizers import SGD, Adam
+from tensorflow.keras.utils import to_categorical
+from sklearn.model_selection import train_test_split
+from keras.layers import Dense, BatchNormalization, Dropout, Flatten
 
 
 class ModelTraining:
     def __init__(self):
+        self.encoder = LabelEncoder()
         """
                    This class shall be used for New training as well as transfer learning of data.
 
@@ -127,3 +131,26 @@ class ModelTraining:
 
         # Save the model
         model.save(keras_model_output_directory)
+
+    def get_training_data(self, data_directory):
+        face_embeddings = np.load(data_directory)
+        X = face_embeddings['features']
+        Y = face_embeddings['labels']
+        self.encoder.fit(Y)
+        Y = self.encoder.transform(Y)
+        return X, Y
+
+    def train_face_model(self, data_directory, model_output_directory, model_input_directory=None):
+        X, Y = self.get_training_data(data_directory=data_directory)
+        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, shuffle=True, random_state=42)
+        model = SVC(kernel='linear', probability=True)
+        model.fit(X_train, Y_train)
+        ypreds_train = model.predict(X_train)
+        ypreds_test = model.predict(X_test)
+        accuracy_score(Y_test,ypreds_test)
+        
+        #save the model
+        
+        pickle.dump(model, open('models/face_SVC_model.pkl', 'wb'))
+        np.save('models/face_encoder.npy', self.encoder.classes_)
+

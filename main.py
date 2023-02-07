@@ -7,26 +7,25 @@ import sys
 def data_collection():
     try:
         collection = Data_collection(class_name=sys.argv[2], collection_type=sys.argv[3])
-        collection.holistic_collection()
+        
+        # collection.pose_collection()
+        collection.face_collection()
     except IndexError:
         print('main.py has arguments:\nclass name:  name of class to capture data')
 
 
 def test_prediction():
-    prediction = LivePredict(sys.argv[2])
-    prediction.live_predict()
+    prediction = LivePredict()
+    prediction.live_predict_face()
 
 
 def train():
     try:
         training = ModelTraining()
         if sys.argv[2] == "face":
-            training.train_model(data_directory="raw_data/training/collection_face_landmarks.csv",
-                                 keras_model_output_directory="models/face_model.h5",
-                                 # keras_model_input_directory='models/face_model.h5',
-                                 # pca_model_input_directory="models/face_pca.joblib",
-                                 pca_model_output_directory="models/face_pca.joblib",
-                                 n_components=5, epochs=100
+            training.train_face_model(data_directory="models/faces_embeddings.npz",
+                                 model_output_directory="models/faces_embeddings.npz",
+                                 # model_input_directory='models/face_model.h5',
                                  )
         elif sys.argv[2] == "pose":
             training.train_model(data_directory="raw_data/training/landmarks.csv",

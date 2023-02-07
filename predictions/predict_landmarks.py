@@ -3,8 +3,11 @@ from data_processing.converter import Converter
 import pandas as pd
 import mediapipe.framework.formats.landmark_pb2 as landmark_pb2
 import tensorflow as tf
+import pickle
 from tensorflow import keras
 from keras.models import load_model
+from keras_facenet import FaceNet
+from sklearn.preprocessing import LabelEncoder
 
 class Prediction:
     """
@@ -16,15 +19,19 @@ class Prediction:
 
                """
 
-    def __init__(self, predict_type):
-        self.predict_type = predict_type
-        self.convertor = Converter(self.predict_type)
+    def __init__(self):
+        self.convertor = Converter()
+        self.facenet = FaceNet()
+        self.face_embeddings = np.load("models/faces_embeddings.npz")
+        
         # Load the model
-        if self.predict_type == "face":
-            self.face_model = load_model('models/face_model.h5')
-        elif self.predict_type == "pose":
-            self.pose_model = load_model('models/pose_model.h5')
+        self.model = load_model('models/model1.h5')
+        # Load the face model
+        self.face_model = pickle.load(open("models/face_SVC_model.pkl", 'rb'))
+        self.encoder = LabelEncoder()
+        self.encoder.classes_ = np.load('models/face_encoder.npy')
 
+        # self.landmark = landmark_pb2.NormalizedLandmarkList()
     def predict(self, landmark):
         """
                     Method Name: predict
@@ -52,7 +59,7 @@ class Prediction:
         
     
         # Make a prediction
-        prediction = self.pose_model.predict(x)
+        prediction = self.model.predict(x)
     
         # Find the index of the highest probability
         class_index = np.argmax(prediction)
@@ -63,38 +70,11 @@ class Prediction:
         # Print the class label
     #     print("Class label:", class_label)
         return class_label 
-    
-    def predict_face(self, landmark):
-        """
-                    Method Name: predict
-                    Description: This method predict the class from landmark data.
-                    Output: None
-                    On Failure: Raise Exception
 
-                    Written By: Ritik Dutta
-                    Version: 1.0
-                    Revisions: None
 
-        """
-        if isinstance(landmark, dict):
-            print("data frame")
-            x = self.convertor.convert_dict_to_dataframe(landmark)
-        else:
-            print("Pose object")
-            x = self.convertor.landmarks_to_df(landmark)
-        print(x.shape)
+    def face_predict(self, img):
+        y_pred = self.facenet.embeddings(img)
+        face_name = self.face_model.predict(y_pred)
+        final_name = self.encoder.inverse_transform(face_name)[0]
+        return final_name
 
-        class_labels = {0: 'ritik', 1: 'rakshit'}
-        # Make a prediction
-        prediction = self.face_model.predict(x)
-        print(max(prediction[0]))
-        # Find the index of the highest probability
-        class_index = np.argmax(prediction)
-    
-        # Look up the class label in the dictionary
-        class_label = class_labels[class_index]
-    
-        # Print the class label
-    #     print("Class label:", class_label)
-        confidence = f"{class_label} {max(prediction[0]):.3f}"
-        return confidence

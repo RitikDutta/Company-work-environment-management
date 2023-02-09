@@ -16,7 +16,7 @@ def data_collection():
 
 def test_prediction():
     prediction = LivePredict()
-    prediction.live_predict_face()
+    prediction.show_face()
 
 
 def train():

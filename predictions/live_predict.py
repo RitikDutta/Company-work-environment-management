@@ -9,6 +9,7 @@ from keras_facenet import FaceNet
 import pickle
 import cv2
 import cv2 as cv
+from mtcnn.mtcnn import MTCNN
 
 import mediapipe as mp
 import numpy as np
@@ -23,10 +24,22 @@ class LivePredict:
 
                """
 
-    def __init__(self):
+    def __init__(self, mode=None):
         self.prediction = Prediction()
+        self.haarcascade = cv2.CascadeClassifier("models/haarcascade_frontalface_default.xml")
+        self.detector = MTCNN()
+        self.mode=mode
+        # self.cap = cv2.VideoCapture(0)
+        # self.success, self.img = self.cap.read()
+        # self.cap.release()
+        self.img = None
+        self.mp_drawing = mp.solutions.drawing_utils
+        self.mp_drawing_styles = mp.solutions.drawing_styles
+        self.mp_face_mesh = mp.solutions.face_mesh
             # self.landmarks = landmark_pb2.NormalizedLandmarkList()
         # self.a='a'
+        self.final_name = ""
+        self.x, self.y=0, 0
 
     def live_predict(self):
         """
@@ -94,112 +107,129 @@ class LivePredict:
     
 
 
-    def live_predict_face(self):
-        facenet = FaceNet()
-        # face_embeddings = np.load("models/faces_embeddings_done_4classes.npz")
-        haarcascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
-        model = pickle.load(open("models/svc.pkl", 'rb'))
-        # Y = face_embeddings['labels']
-        # encoder = LabelEncoder()
-        # encoder.fit(Y)
+    def live_predict_face(self, image):
 
 
+        flag = False
 
-
-        mp_drawing = mp.solutions.drawing_utils
-        mp_drawing_styles = mp.solutions.drawing_styles
-        mp_face_mesh = mp.solutions.face_mesh
+        
         i=0
-        final_name = ""
+        
         d_model = "mtcnn"
         t = 100
-        x,y=0,0
-        from mtcnn.mtcnn import MTCNN
+        # x,y=0,0
 
-        detector = MTCNN()
+        
 
         # For webcam input:
-        drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
-        cap = cv2.VideoCapture(0)
-        with mp_face_mesh.FaceMesh(
+        drawing_spec = self.mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
+        # cap = cv2.VideoCapture(0)
+        with self.mp_face_mesh.FaceMesh(
             max_num_faces=1,
             refine_landmarks=True,
             min_detection_confidence=0.5,
             min_tracking_confidence=0.5) as face_mesh:
-            while cap.isOpened():
-                
-                success, image = cap.read()
-                
-                
-                if i >=t:
-                    rgb_img = cv.cvtColor(image, cv.COLOR_BGR2RGB)
-                    gray_img = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-                    try:
-                        if d_model == "mtcnn":
-                            x,y,w,h = detector.detect_faces(rgb_img)[0]['box']
-                        elif d_model == "haar":
-                            faces = haarcascade.detectMultiScale(gray_img, 1.3, 5)
-                            t = 0.1
-                            for x,y,w,h in faces:
-                                x,y,w,h=x,y,w,h
-                        img = rgb_img[y:y+h, x:x+w]
-                        img =  cv.resize(img, (160, 160))
-                        img = np.expand_dims(img, axis=0)
+            # while cap.isOpened():
+            image = image
+            # success, image = cap.read()
+            current_time = int(time.time())
+            
+            # if i >=t:
+            if (current_time % 7 == 0 and not flag):
+                rgb_img = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+                gray_img = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+                try:
+                    if d_model == "mtcnn":
+                        self.x,self.y,w,h = self.detector.detect_faces(rgb_img)[0]['box']
+                    elif d_model == "haar":
+                        faces = self.haarcascade.detectMultiScale(gray_img, 1.3, 5)
+                        t = 0.1
+                        for x,y,w,h in faces:
+                            self.x,self.y,w,h=x,y,w,h
+                    img = rgb_img[self.y:self.y+h, self.x:self.x+w]
+                    img =  cv.resize(img, (160, 160))
+                    img = np.expand_dims(img, axis=0)
 
-                        final_name = self.prediction.face_predict(img)
-            #             cv.rectangle(image, (x,y), (x+w, y+h), (255,0,255), 3)
-                    except IndexError:
-                        print("no face")
-                        final_name = "No Face"
-                    i=0
-                black_image = np.zeros((image.shape[0], image.shape[1], 3), dtype=np.uint8)
-                black_image[:]=(255,255,255)
-                cv.putText(black_image, str(final_name), (x, y-10), cv.FONT_HERSHEY_SIMPLEX, 1, (0,239,80), 3, cv.LINE_AA)   
+                    self.final_name = self.prediction.face_predict(img)
+        #             cv.rectangle(image, (x,y), (x+w, y+h), (255,0,255), 3)
+                except IndexError:
+                    print("no face")
+                    self.final_name = "No Face"
+                i=0
+            elif current_time % 7 != 0:
+                flag = False
+            black_image = np.zeros((image.shape[0], image.shape[1], 3), dtype=np.uint8)
+            black_image[:]=(255,255,255)
 
-                i+=1
-                    
+            i+=1
                 
-                if not success:
-                    print("Ignoring empty camera frame.")
-                    # If loading a video, use 'break' instead of 'continue'.
-                    continue
+            
+            # if not success:
+            #     print("Ignoring empty camera frame.")
+            #     # If loading a video, use 'break' instead of 'continue'.
+            #     continue
 
-                # To improve performance, optionally mark the image as not writeable to
-                # pass by reference.
-                image.flags.writeable = False
-                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                results = face_mesh.process(image)
+            # To improve performance, optionally mark the image as not writeable to
+            # pass by reference.
+            image.flags.writeable = False
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            results = face_mesh.process(image)
 
-                # Draw the face mesh annotations on the image.
-                image.flags.writeable = True
-                image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-            #     black_image = np.zeros((image.shape[0], image.shape[1], 3), dtype=np.uint8)
-                if results.multi_face_landmarks:
-                    for face_landmarks in results.multi_face_landmarks:
-                        mp_drawing.draw_landmarks(
-                            image=black_image,
-                            landmark_list=face_landmarks,
-                            connections=mp_face_mesh.FACEMESH_TESSELATION,
-                            landmark_drawing_spec=None,
-                            connection_drawing_spec=mp_drawing_styles
-                            .get_default_face_mesh_tesselation_style())
-                        mp_drawing.draw_landmarks(
-                            image=black_image,
-                            landmark_list=face_landmarks,
-                            connections=mp_face_mesh.FACEMESH_CONTOURS,
-                            landmark_drawing_spec=None,
-                            connection_drawing_spec=mp_drawing_styles
-                            .get_default_face_mesh_contours_style())
-                        mp_drawing.draw_landmarks(
-                            image=black_image,
-                            landmark_list=face_landmarks,
-                            connections=mp_face_mesh.FACEMESH_IRISES,
-                            landmark_drawing_spec=None,
-                            connection_drawing_spec=mp_drawing_styles
-                            .get_default_face_mesh_iris_connections_style())
-                    # Flip the image horizontally for a selfie-view display.
-                cv2.imshow('MediaPipe Face Mesh', black_image)
-                if cv2.waitKey(5) & 0xFF == 27:
-                    break
+            # Draw the face mesh annotations on the image.
+            image.flags.writeable = True
+            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        #     black_image = np.zeros((image.shape[0], image.shape[1], 3), dtype=np.uint8)
+            if results.multi_face_landmarks:
+                for face_landmarks in results.multi_face_landmarks:
+                    self.mp_drawing.draw_landmarks(
+                        image=black_image,
+                        landmark_list=face_landmarks,
+                        connections=self.mp_face_mesh.FACEMESH_TESSELATION,
+                        landmark_drawing_spec=None,
+                        connection_drawing_spec=self.mp_drawing_styles
+                        .get_default_face_mesh_tesselation_style())
+                    self.mp_drawing.draw_landmarks(
+                        image=black_image,
+                        landmark_list=face_landmarks,
+                        connections=self.mp_face_mesh.FACEMESH_CONTOURS,
+                        landmark_drawing_spec=None,
+                        connection_drawing_spec=self.mp_drawing_styles
+                        .get_default_face_mesh_contours_style())
+                    self.mp_drawing.draw_landmarks(
+                        image=black_image,
+                        landmark_list=face_landmarks,
+                        connections=self.mp_face_mesh.FACEMESH_IRISES,
+                        landmark_drawing_spec=None,
+                        connection_drawing_spec=self.mp_drawing_styles
+                        .get_default_face_mesh_iris_connections_style())
+        black_image = cv2.flip(black_image, 1)
+        cv.putText(black_image, str(self.final_name), (black_image.shape[0] - self.x, self.y-10), cv.FONT_HERSHEY_SIMPLEX, 1, (0,239,80), 3, cv.LINE_AA)   
+        return black_image
+
+
+    def show_face(self):
+        cap = cv2.VideoCapture(0)
+        while(True):
+            success, image = cap.read()
+            black_image = self.live_predict_face(image)
+            cv2.imshow('MediaPipe Face Mesh', black_image)
+            if cv2.waitKey(5) & 0xFF == ord('q'):
+                break
+
         cap.release()
         cv2.destroyAllWindows()
+
+
+
+
+    def face_yield(self):
+        cap = cv2.VideoCapture(0)
+        while(True):
+            success, image = cap.read()
+            black_image = self.live_predict_face(image)
+
+            ret, jpeg = cv2.imencode('.jpg', black_image)
+            yield (b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n\r\n')
+            cv2.waitKey(1)
+        cap.release()

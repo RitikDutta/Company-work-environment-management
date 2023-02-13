@@ -15,8 +15,16 @@ def data_collection():
 
 
 def test_prediction():
-    prediction = LivePredict()
-    prediction.show_face()
+    try:
+        prediction = LivePredict()
+        if sys.argv[2] == "pose":
+            prediction.show_pose()
+        elif sys.argv[2] == "face":
+            prediction.show_face(sys.argv[3])
+    except IndexError:
+        print("Please Select from\n1.Pose\n2.Face")
+
+    # prediction.show_face()
 
 
 def train():

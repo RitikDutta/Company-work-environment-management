@@ -29,19 +29,23 @@ class LivePredict:
         self.haarcascade = cv2.CascadeClassifier("models/haarcascade_frontalface_default.xml")
         self.detector = MTCNN()
         self.mode=mode
-        # self.cap = cv2.VideoCapture(0)
-        # self.success, self.img = self.cap.read()
-        # self.cap.release()
-        self.img = None
+        self.cap = cv2.VideoCapture(0)
+        self.success, self.img = self.cap.read()
+        self.cap.release()
+        # self.img = None
         self.mp_drawing = mp.solutions.drawing_utils
         self.mp_drawing_styles = mp.solutions.drawing_styles
         self.mp_face_mesh = mp.solutions.face_mesh
             # self.landmarks = landmark_pb2.NormalizedLandmarkList()
         # self.a='a'
         self.final_name = ""
-        self.x, self.y=0, 0
+        self.pose_predicted = 'Detecting'
+        self.x, self.y, self.w, self.h=10, 10, 10, 10
+        self.mp_pose = mp.solutions.pose
+        self.pose =  self.mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
+        self.time_gap = 7
 
-    def live_predict(self):
+    def live_predict_pose(self, image):
         """
                 Method Name: predict
                 Description: This method predict the class from landmark data.
@@ -53,124 +57,75 @@ class LivePredict:
                 Revisions: None
 
                         """
-        mp_drawing = mp.solutions.drawing_utils
-        mp_drawing_styles = mp.solutions.drawing_styles
-        mp_pose = mp.solutions.pose
-        i=0
-        landmarks1 = landmark_pb2.NormalizedLandmarkList()
-        t=2
-        print("running pose collection in \n \tpress Esc to close")
-        while t > 0:
-                print(t)
-                t -= 1
-                time.sleep(1)
-        # For webcam input:
-        sets = 0
-        cap = cv2.VideoCapture(0)
-        predicted = ''
-        with mp_pose.Pose(
-            min_detection_confidence=0.5,
-            min_tracking_confidence=0.5) as pose:
-          while cap.isOpened():
-            success, image = cap.read()
-            if not success:
-              print("Ignoring empty camera frame.")
-              predicted = 'empty'
-              continue
-            # To improve performance, optionally mark the image as not writeable to
-            image.flags.writeable = False
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            results = pose.process(image)
-            cv2.putText(image, predicted, (300, 100), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 3, cv2.LINE_AA)
-            
-            # Draw the pose annotation on the image.
-            image.flags.writeable = False
-            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-            mp_drawing.draw_landmarks(
-                    image,
-                results.pose_landmarks,
-                mp_pose.POSE_CONNECTIONS,
-                landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
-            cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
-            cv2.setWindowProperty("MediaPipe Pose", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-            i+=1
-            if (results.pose_landmarks is not None):
-                if i >=20:
-                    predicted = self.prediction.predict(results.pose_landmarks.landmark)
-                    print("prediction class:", predicted)
-                    i=0
-        #     print(results.pose_landmarks)
-            if cv2.waitKey(5) & 0xFF == 27:
-              break
-        cap.release()
-        cv2.destroyWindow('MediaPipe Pose')
-    
-
-
-    def live_predict_face(self, image):
-
-
+        self.time_gap = 3
         flag = False
+        current_time = int(time.time())
+        image.flags.writeable = False
+        results = self.pose.process(image)
+    
+        # Draw the pose annotation on the image.
+        image.flags.writeable = False
+        # image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        self.mp_drawing.draw_landmarks(
+            image,
+            results.pose_landmarks,
+            self.mp_pose.POSE_CONNECTIONS,
+            landmark_drawing_spec=self.mp_drawing_styles.get_default_pose_landmarks_style())
+    
+        # Run predictions every 3 seconds
+        if (current_time % self.time_gap == 0 and not flag):
+            if (results.pose_landmarks is not None):
+                    self.pose_predicted = self.prediction.predict(results.pose_landmarks.landmark)
+                    print("prediction class:", self.pose_predicted)
 
+        elif current_time % self.time_gap != 0:
+            flag = False
+        image = cv2.flip(image, 1)
+        cv2.putText(image, self.pose_predicted, (300, 100), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 3, cv2.LINE_AA)
         
-        i=0
-        
-        d_model = "mtcnn"
-        t = 100
-        # x,y=0,0
+        return image
 
-        
 
-        # For webcam input:
+
+    def live_predict_face(self, image, detection_model):
+        flag = False
+        
         drawing_spec = self.mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
-        # cap = cv2.VideoCapture(0)
         with self.mp_face_mesh.FaceMesh(
             max_num_faces=1,
             refine_landmarks=True,
             min_detection_confidence=0.5,
             min_tracking_confidence=0.5) as face_mesh:
-            # while cap.isOpened():
+
             image = image
-            # success, image = cap.read()
+
             current_time = int(time.time())
-            
-            # if i >=t:
-            if (current_time % 7 == 0 and not flag):
+            if (current_time % self.time_gap == 0 and not flag and image is not None):
+                # print(image.shape)
                 rgb_img = cv.cvtColor(image, cv.COLOR_BGR2RGB)
                 gray_img = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
                 try:
-                    if d_model == "mtcnn":
-                        self.x,self.y,w,h = self.detector.detect_faces(rgb_img)[0]['box']
-                    elif d_model == "haar":
+                    if detection_model == "mtcnn":
+                        self.x,self.y,self.w,self.h = self.detector.detect_faces(rgb_img)[0]['box']
+                        self.time_gap = 7
+                    elif detection_model == "haar":
                         faces = self.haarcascade.detectMultiScale(gray_img, 1.3, 5)
-                        t = 0.1
                         for x,y,w,h in faces:
-                            self.x,self.y,w,h=x,y,w,h
-                    img = rgb_img[self.y:self.y+h, self.x:self.x+w]
+                            self.x,self.y,self.w,self.h=x,y,w,h
+                        self.time_gap = 1
+                    img = rgb_img[self.y:self.y+self.h, self.x:self.x+self.w]
                     img =  cv.resize(img, (160, 160))
                     img = np.expand_dims(img, axis=0)
-
+                        
                     self.final_name = self.prediction.face_predict(img)
-        #             cv.rectangle(image, (x,y), (x+w, y+h), (255,0,255), 3)
                 except IndexError:
                     print("no face")
                     self.final_name = "No Face"
-                i=0
-            elif current_time % 7 != 0:
+            elif current_time % self.time_gap != 0:
                 flag = False
             black_image = np.zeros((image.shape[0], image.shape[1], 3), dtype=np.uint8)
-            black_image[:]=(255,255,255)
-
-            i+=1
-                
+            black_image[:]=(255,255,255)                
             
-            # if not success:
-            #     print("Ignoring empty camera frame.")
-            #     # If loading a video, use 'break' instead of 'continue'.
-            #     continue
-
-            # To improve performance, optionally mark the image as not writeable to
-            # pass by reference.
             image.flags.writeable = False
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             results = face_mesh.process(image)
@@ -178,7 +133,6 @@ class LivePredict:
             # Draw the face mesh annotations on the image.
             image.flags.writeable = True
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        #     black_image = np.zeros((image.shape[0], image.shape[1], 3), dtype=np.uint8)
             if results.multi_face_landmarks:
                 for face_landmarks in results.multi_face_landmarks:
                     self.mp_drawing.draw_landmarks(
@@ -202,19 +156,42 @@ class LivePredict:
                         landmark_drawing_spec=None,
                         connection_drawing_spec=self.mp_drawing_styles
                         .get_default_face_mesh_iris_connections_style())
-        black_image = cv2.flip(black_image, 1)
-        cv.putText(black_image, str(self.final_name), (black_image.shape[0] - self.x, self.y-10), cv.FONT_HERSHEY_SIMPLEX, 1, (0,239,80), 3, cv.LINE_AA)   
-        return black_image
+            else:
+                img = np.ones((480, 640, 3), dtype = np.uint8)
+                img[:]=(255,255,255)
+                return img    
+            cv.rectangle(black_image, (self.x,self.y), (self.x+self.w, self.y+self.h), (255,0,255), 3)
+            black_image = cv2.flip(black_image, 1)
+            cv.putText(black_image, str(self.final_name), (black_image.shape[0] - self.x, self.y-10), cv.FONT_HERSHEY_SIMPLEX, 1, (0,239,80), 3, cv.LINE_AA)   
+            return black_image
 
-
-    def show_face(self):
+    def show_pose(self):
         cap = cv2.VideoCapture(0)
         while(True):
             success, image = cap.read()
-            black_image = self.live_predict_face(image)
+            black_image = self.live_predict_pose(image)
             cv2.imshow('MediaPipe Face Mesh', black_image)
             if cv2.waitKey(5) & 0xFF == ord('q'):
                 break
+            if not success:
+                print("Ignoring empty camera frame.")
+                continue
+
+
+    def show_face(self, detection_model):
+        cap = cv2.VideoCapture(0)
+        while(True):
+            success, image = cap.read()
+            black_image = self.live_predict_face(image, detection_model)
+            cv2.imshow('MediaPipe Face Mesh', black_image)
+            if cv2.waitKey(5) & 0xFF == ord('q'):
+                break
+            if not success:
+                print("Ignoring empty camera frame.")
+                continue
+
+        cap.release()
+        cv2.destroyAllWindows()
 
         cap.release()
         cv2.destroyAllWindows()
@@ -232,4 +209,36 @@ class LivePredict:
             yield (b'--frame\r\n'
                     b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n\r\n')
             cv2.waitKey(1)
+        print(error)
+        cap.release()
+
+    def pose_yield(self):
+        cap = cv2.VideoCapture(0)
+        while(True):
+            success, image = cap.read()
+            black_image = self.live_predict_pose(image)
+
+            ret, jpeg = cv2.imencode('.jpg', black_image)
+            yield (b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n\r\n')
+            cv2.waitKey(1)
+        cap.release()
+
+    def yield_both(self):
+        try:
+            cap = cv2.VideoCapture(0)
+            while(True):
+                success, image1 = cap.read()
+                black_image1 = self.live_predict_face(image1)
+                success, image2 = cap.read()
+                black_image2 = self.live_predict_pose(image2)
+
+                combined_image = cv2.hconcat([black_image1, black_image2])
+
+                ret, jpeg = cv2.imencode('.jpg', combined_image)
+                yield (b'--frame\r\n'
+                        b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n\r\n')
+                cv2.waitKey(1)
+        except (AttributeError) as error:
+            print(error)
         cap.release()

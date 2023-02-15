@@ -1,3 +1,8 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+import tensorflow as tf
+tf.get_logger().setLevel('ERROR')
+
 from data_collection.data_collector import Data_collection
 from predictions.live_predict import LivePredict
 from src.train_model import ModelTraining
@@ -17,14 +22,14 @@ def data_collection():
 def test_prediction():
     try:
         prediction = LivePredict()
-        if sys.argv[2] == "pose":
-            prediction.show_pose()
-        elif sys.argv[2] == "face":
-            prediction.show_face(sys.argv[3])
+        # if sys.argv[2] == "pose":
+        #     prediction.show_pose()
+        # elif sys.argv[2] == "face":
+        #     prediction.show_face(sys.argv[3])
+        prediction.show_both()
     except IndexError:
         print("Please Select from\n1.Pose\n2.Face")
 
-    # prediction.show_face()
 
 
 def train():

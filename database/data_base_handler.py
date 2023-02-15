@@ -5,11 +5,13 @@ from database import database_operations
 class database_handler():
     def __init__(self):
         self.countert = counter()
+        db = database_operations()
         # self.predictions = live_predict()
     
     def df_handle(self, action, name):
         updated, action, duration, pre_action, pre_duration, pre_name = self.countert.action_tracker(action, name)
         print("insert {} for {} into {} record".format(pre_action, pre_duration, pre_name))
+        
 
     # def get_prediction(self):
     #     face, pose = self.predictions.show_both()

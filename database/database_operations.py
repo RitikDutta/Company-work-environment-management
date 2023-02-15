@@ -2,6 +2,9 @@ import datetime
 from cassandra.cluster import Cluster
 from cassandra.auth import PlainTextAuthProvider
 import pandas as pd
+from IPython.display import display
+from tabulate import tabulate
+
 class CassandraCRUD:
     def __init__(self, keyspace):
         cloud_config= {'secure_connect_bundle': 'secure-connect-test.zip'}
@@ -42,7 +45,7 @@ class CassandraCRUD:
         
 
 
-    def insert_data(self, employee_id, date, start_time=datetime.time(), end_time=datetime.time(), work_hours=0.0, phone_usage_duration=0.0, looking_away_duration=0.0, looking_away_frequency=0, name="_", total_work_duration=0, total_phone_usage=0, total_looking_away_time=0, total_looking_away_frequency=0):
+    def insert_data(self, employee_id, date, start_time=datetime.time(), end_time=datetime.time(), work_hours=0.0, phone_usage_duration=0.0, looking_away_duration=0.0, looking_away_frequency=0, name="_", total_work_duration=0, total_phone_usage=0, total_looking_away_time=0, total_looking_away_frequency=0, new_employee=True):
         insert_query = """
         INSERT INTO daily_activity (
         employee_id, 
@@ -57,49 +60,58 @@ class CassandraCRUD:
         self.session.execute(insert_query)
         self.show("daily_activity")
         
-        #Insert into Total_activity
-        insert_query = """
-        INSERT INTO total_activity (
-        employee_id, 
-        name,
-        total_work_duration,
-        total_phone_usage_duration,
-        total_looking_away_duration,
-        total_looking_away_frequency
-        ) VALUES ('{}', '{}', {}, {}, {}, {})""".format(employee_id, "name", 0, 0, 0, 0)
-        self.session.execute(insert_query)
-        self.show("total_activity")
+        select_query = "SELECT * FROM total_activity WHERE employee_id = %s"
+        result = self.session.execute(select_query, (employee_id,)).one()
+        if not result:
+            #Insert into Total_activity
+            insert_query = """
+            INSERT INTO total_activity (
+            employee_id, 
+            name,
+            total_work_duration,
+            total_phone_usage_duration,
+            total_looking_away_duration,
+            total_looking_away_frequency
+            ) VALUES ('{}', '{}', {}, {}, {}, {})""".format(employee_id, "name", 0, 0, 0, 0)
+            self.session.execute(insert_query)
+            self.show("total_activity")
 
-    def update_activity(self, employee_id, date, end_time, work_hours=0, phone_usage_duration=0, looking_away_duration=0, looking_away_frequency=0, total_work_duration=0, total_phone_usage=0, total_looking_away_time=0, total_looking_away_frequency=0):
+    def update_activity(self, employee_id, date, end_time, work_hours=0, phone_usage_duration=0, looking_away_duration=0, looking_away_frequency=0, total_work_duration=0, total_phone_usage_duration=0, total_looking_away_duration=0, total_looking_away_frequency=0):
         # First, get the current values for the employee and date
+        if not self.is_present(employee_id, date):
+            print("-"*50)
+            print("New Record Added")
+            self.insert_data(employee_id, date)
+            print("-"*50)
+
         select_query = "SELECT end_time, work_hours, phone_usage_duration, looking_away_duration, looking_away_frequency FROM daily_activity WHERE employee_id = %s and date = %s"
-        result = self.session.execute(select_query, (employee_id, date)).one()
+        daily_result = self.session.execute(select_query, (employee_id, date)).one()
 
         # Update the values with the new values
-        end_time = end_time if result else 0
-        work_hours += result.work_hours if result else 0
-        phone_usage_duration += result.phone_usage_duration if result else 0
-        looking_away_duration += result.looking_away_duration if result else 0
-        looking_away_frequency += result.looking_away_frequency if result else 0
+        t_end_time = end_time if daily_result else 0
+        t_work_hours = daily_result.work_hours + work_hours if daily_result else 0
+        t_phone_usage_duration = daily_result.phone_usage_duration + phone_usage_duration if daily_result else 0
+        t_looking_away_duration = daily_result.looking_away_duration + looking_away_duration if daily_result else 0
+        t_looking_away_frequency = daily_result.looking_away_frequency + looking_away_frequency if daily_result else 0
 
 
         update_query = "UPDATE daily_activity SET end_time = %s, work_hours = %s, phone_usage_duration = %s, looking_away_duration = %s, looking_away_frequency = %s WHERE employee_id = %s and date = %s"
-        self.session.execute(update_query, (end_time, work_hours, phone_usage_duration, looking_away_duration, looking_away_frequency, employee_id, date))
+        self.session.execute(update_query, (t_end_time, t_work_hours, t_phone_usage_duration, t_looking_away_duration, t_looking_away_frequency, employee_id, date))
         self.show("daily_activity")
-        
-        
+
+
         # Update contradicting values to total_activity table
         select_query = "SELECT total_work_duration, total_phone_usage_duration, total_looking_away_duration, total_looking_away_frequency FROM total_activity WHERE employee_id = %s"
-#         result = self.session.execute(select_query, (employee_id)).one()
+        total_result = self.session.execute(select_query, (employee_id, )).one()
 
         # Update the values with the new values
-        total_work_duration += result.work_hours if result else 0
-        total_phone_usage += result.phone_usage_duration if result else 0
-        total_looking_away_time += result.looking_away_duration if result else 0
-        total_looking_away_frequency += result.looking_away_frequency if result else 0
+        total_work_duration += work_hours + total_result.total_work_duration if total_result else 0
+        total_phone_usage_duration += phone_usage_duration + total_result.total_phone_usage_duration if total_result else 0
+        total_looking_away_duration += looking_away_duration + total_result.total_looking_away_duration if total_result else 0
+        total_looking_away_frequency += looking_away_frequency + total_result.total_looking_away_frequency if total_result else 0
 
         update_query = "UPDATE total_activity SET total_work_duration = %s, total_phone_usage_duration = %s, total_looking_away_duration = %s, total_looking_away_frequency = %s WHERE employee_id = %s"
-        self.session.execute(update_query, (total_work_duration, total_phone_usage, total_looking_away_time, total_looking_away_frequency, employee_id))
+        self.session.execute(update_query, (total_work_duration, total_phone_usage_duration, total_looking_away_duration, total_looking_away_frequency, employee_id))
         self.show("total_activity")
 
 
@@ -126,4 +138,16 @@ class CassandraCRUD:
     def show(self, table_name):
         query = "SELECT * FROM test_key.{};".format(table_name)
         df = pd.DataFrame(list(crud.session.execute(query)))
-        display(df) 
+        print(tabulate(df, headers='keys', tablefmt='fancy_grid'))
+        
+        
+    def is_present(self, employee_id, date):
+        select_query = "SELECT * FROM daily_activity WHERE employee_id = %s and date = %s"
+        result = self.session.execute(select_query, (employee_id, date)).one()
+        return True if result else False
+
+
+if __name__ == '__main__':
+    dbo = crud = CassandraCRUD("test_key")
+    dbo.show("daily_activity")
+    dbo.show("total_activity")

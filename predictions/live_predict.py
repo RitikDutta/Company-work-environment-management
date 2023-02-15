@@ -13,6 +13,7 @@ from mtcnn.mtcnn import MTCNN
 
 import mediapipe as mp
 import numpy as np
+from database.data_base_handler import database_handler
 
 class LivePredict:
     """
@@ -44,6 +45,7 @@ class LivePredict:
         self.mp_pose = mp.solutions.pose
         self.pose =  self.mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
         self.time_gap = 7
+        self.db_handler = database_handler()
 
     def live_predict_pose(self, image):
         """
@@ -195,6 +197,28 @@ class LivePredict:
 
         cap.release()
         cv2.destroyAllWindows()
+
+    def show_both(self, detection_model="mtcnn"):
+        cap = cv2.VideoCapture(0)
+        while(True):
+            success, image = cap.read()
+            black_image = self.live_predict_face(image, detection_model)
+            # cv2.imshow('MediaPipe Face Mesh', black_image)
+            # time.sleep(1)
+            success, image2 = cap.read()
+            black_image2 = self.live_predict_pose(image2)
+            # cv2.imshow('MediaPipe Face Mesh2', black_image2)            
+            # time.sleep(1)
+            print(self.final_name)
+            print(self.pose_predicted)
+            # return self.final_name, self.pose_predicted
+            self.db_handler.df_handle(self.pose_predicted, self.final_name)
+        cap.release()
+        cv2.destroyAllWindows()
+
+        cap.release()
+        cv2.destroyAllWindows()
+
 
 
 

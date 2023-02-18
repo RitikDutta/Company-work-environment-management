@@ -4,13 +4,22 @@ from cassandra.auth import PlainTextAuthProvider
 import pandas as pd
 from IPython.display import display
 from tabulate import tabulate
-
+import os
+import time
+# from data_processing.counter import counter
 class CassandraCRUD:
     def __init__(self, keyspace):
         cloud_config= {'secure_connect_bundle': 'secure-connect-test.zip'}
         auth_provider = PlainTextAuthProvider('biTEHxuyRqFgCcFpnEMOMvkN', 'PyqybfDQpPOaLp44hlWbb1Yb7bZ2Mn5Mt-_DGMOs.qBj.JY.Z,FAnB.9ncCD+F2EsSJ7W6XD,l,3S9gZW7bgWSMQDHKvTI7Iams2.hRRz6W_biRSrttvGgs1WhAl-in9')
         self.cluster = Cluster(cloud=cloud_config, auth_provider=auth_provider)
         self.session = self.cluster.connect(keyspace)
+        # self.counter = counter()
+    def time_adder(self, str_time, addition):
+            print(str_time, addition)
+            date_select = datetime.datetime.strptime(str_time, '%H:%M:%S')
+            delta = datetime.timedelta(seconds=addition)
+            target_time = date_select + delta
+            return str(target_time.strftime("%H:%M:%S"))
 
     def create_daily_activity_table(self):
         create_table_query = """
@@ -19,9 +28,9 @@ class CassandraCRUD:
             date date,
             start_time time,
             end_time time,
-            work_hours float,
-            phone_usage_duration float,
-            looking_away_duration float,
+            work_hours text,
+            phone_usage_duration text,
+            looking_away_duration text,
             looking_away_frequency int,
             PRIMARY KEY (employee_id, date)
         );
@@ -33,9 +42,9 @@ class CassandraCRUD:
         CREATE TABLE IF NOT EXISTS total_activity (
             employee_id text,
             name text,
-            total_work_duration float,
-            total_phone_usage_duration float,
-            total_looking_away_duration float,
+            total_work_duration text,
+            total_phone_usage_duration text,
+            total_looking_away_duration text,
             total_looking_away_frequency int,
             PRIMARY KEY (employee_id),
         );
@@ -45,7 +54,7 @@ class CassandraCRUD:
         
 
 
-    def insert_data(self, employee_id, date, start_time=datetime.time(), end_time=datetime.time(), work_hours=0.0, phone_usage_duration=0.0, looking_away_duration=0.0, looking_away_frequency=0, name="_", total_work_duration=0, total_phone_usage=0, total_looking_away_time=0, total_looking_away_frequency=0, new_employee=True):
+    def insert_data(self, employee_id, date, start_time=datetime.datetime.now().time(), end_time=datetime.time(), work_hours="00:00:00", phone_usage_duration="00:00:00", looking_away_duration="00:00:00", looking_away_frequency=0, name="_", total_work_duration="00:00:00", total_phone_usage="00:00:00", total_looking_away_time="00:00:00", total_looking_away_frequency=0, new_employee=True):
         insert_query = """
         INSERT INTO daily_activity (
         employee_id, 
@@ -56,7 +65,7 @@ class CassandraCRUD:
         phone_usage_duration, 
         looking_away_duration,
         looking_away_frequency
-        ) VALUES ('{}', '{}', '{}', '{}', {}, {}, {}, {})""".format(employee_id, date, start_time, end_time, work_hours, phone_usage_duration, looking_away_duration, looking_away_frequency)
+        ) VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', {})""".format(employee_id, date, start_time, end_time, work_hours, phone_usage_duration, looking_away_duration, looking_away_frequency)
         self.session.execute(insert_query)
         self.show("daily_activity")
         
@@ -72,11 +81,11 @@ class CassandraCRUD:
             total_phone_usage_duration,
             total_looking_away_duration,
             total_looking_away_frequency
-            ) VALUES ('{}', '{}', {}, {}, {}, {})""".format(employee_id, "name", 0, 0, 0, 0)
+            ) VALUES ('{}', '{}', '{}', '{}', '{}', {})""".format(employee_id, "name", "00:00:00", "00:00:00", "00:00:00", 0)
             self.session.execute(insert_query)
             self.show("total_activity")
 
-    def update_activity(self, employee_id, date, end_time, work_hours=0, phone_usage_duration=0, looking_away_duration=0, looking_away_frequency=0, total_work_duration=0, total_phone_usage_duration=0, total_looking_away_duration=0, total_looking_away_frequency=0):
+    def update_activity(self, employee_id, date, end_time=datetime.datetime.now().time(), work_hours=0, phone_usage_duration=0, looking_away_duration=0, looking_away_frequency=0, total_work_duration=0, total_phone_usage_duration=0, total_looking_away_duration=0, total_looking_away_frequency=0):
         # First, get the current values for the employee and date
         if not self.is_present(employee_id, date):
             print("-"*50)
@@ -89,15 +98,15 @@ class CassandraCRUD:
 
         # Update the values with the new values
         t_end_time = end_time if daily_result else 0
-        t_work_hours = daily_result.work_hours + work_hours if daily_result else 0
-        t_phone_usage_duration = daily_result.phone_usage_duration + phone_usage_duration if daily_result else 0
-        t_looking_away_duration = daily_result.looking_away_duration + looking_away_duration if daily_result else 0
+        t_work_hours = self.time_adder(daily_result.work_hours, work_hours) if daily_result else 0
+        t_phone_usage_duration = self.time_adder(daily_result.phone_usage_duration, phone_usage_duration) if daily_result else 0
+        t_looking_away_duration = self.time_adder(daily_result.looking_away_duration, looking_away_duration) if daily_result else 0
         t_looking_away_frequency = daily_result.looking_away_frequency + looking_away_frequency if daily_result else 0
 
 
         update_query = "UPDATE daily_activity SET end_time = %s, work_hours = %s, phone_usage_duration = %s, looking_away_duration = %s, looking_away_frequency = %s WHERE employee_id = %s and date = %s"
         self.session.execute(update_query, (t_end_time, t_work_hours, t_phone_usage_duration, t_looking_away_duration, t_looking_away_frequency, employee_id, date))
-        self.show("daily_activity")
+        # self.show("daily_activity")
 
 
         # Update contradicting values to total_activity table
@@ -105,14 +114,15 @@ class CassandraCRUD:
         total_result = self.session.execute(select_query, (employee_id, )).one()
 
         # Update the values with the new values
-        total_work_duration += work_hours + total_result.total_work_duration if total_result else 0
-        total_phone_usage_duration += phone_usage_duration + total_result.total_phone_usage_duration if total_result else 0
-        total_looking_away_duration += looking_away_duration + total_result.total_looking_away_duration if total_result else 0
+        print(":: {}, {}".format(total_result.total_work_duration, work_hours))
+        total_work_duration = self.time_adder(total_result.total_work_duration, work_hours) if total_result else 0
+        total_phone_usage_duration = self.time_adder(total_result.total_phone_usage_duration, phone_usage_duration) if total_result else 0
+        total_looking_away_duration = self.time_adder(total_result.total_looking_away_duration, looking_away_duration) if total_result else 0
         total_looking_away_frequency += looking_away_frequency + total_result.total_looking_away_frequency if total_result else 0
 
         update_query = "UPDATE total_activity SET total_work_duration = %s, total_phone_usage_duration = %s, total_looking_away_duration = %s, total_looking_away_frequency = %s WHERE employee_id = %s"
         self.session.execute(update_query, (total_work_duration, total_phone_usage_duration, total_looking_away_duration, total_looking_away_frequency, employee_id))
-        self.show("total_activity")
+        # self.show("total_activity")
 
 
 
@@ -137,7 +147,7 @@ class CassandraCRUD:
             
     def show(self, table_name):
         query = "SELECT * FROM test_key.{};".format(table_name)
-        df = pd.DataFrame(list(crud.session.execute(query)))
+        df = pd.DataFrame(list(self.session.execute(query)))
         print(tabulate(df, headers='keys', tablefmt='fancy_grid'))
         
         
@@ -149,5 +159,8 @@ class CassandraCRUD:
 
 if __name__ == '__main__':
     dbo = crud = CassandraCRUD("test_key")
-    dbo.show("daily_activity")
-    dbo.show("total_activity")
+    while True:
+        dbo.show("daily_activity")
+        dbo.show("total_activity")
+        time.sleep(1)
+        os.system("clear")

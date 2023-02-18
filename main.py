@@ -6,6 +6,7 @@ tf.get_logger().setLevel('ERROR')
 from data_collection.data_collector import Data_collection
 from predictions.live_predict import LivePredict
 from src.train_model import ModelTraining
+from database.database_operations import CassandraCRUD
 import sys
 
 
@@ -22,14 +23,19 @@ def data_collection():
 def test_prediction():
     try:
         prediction = LivePredict()
-        # if sys.argv[2] == "pose":
-        #     prediction.show_pose()
-        # elif sys.argv[2] == "face":
-        #     prediction.show_face(sys.argv[3])
-        prediction.show_both()
+        if sys.argv[2] == "pose":
+            prediction.show_pose()
+        elif sys.argv[2] == "face":
+            prediction.show_face(sys.argv[3])
+        elif sys.argv[2] == "db":
+            prediction.show_both()
     except IndexError:
         print("Please Select from\n1.Pose\n2.Face")
 
+def db_crud():
+    crud = CassandraCRUD("test_key")
+    if sys.argv[2] == "show":
+        crud.show_both()
 
 
 def train():

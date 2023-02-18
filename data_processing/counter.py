@@ -47,8 +47,9 @@ class counter():
         return is_updated, cur_action, cur_duration, pre_action, pre_duration.seconds, pre_name
     
     def time_adder(self, str_time, addition):
-        date_select = datetime.datetime.strptime(str_time, '%H:%M:%S')
-        delta = datetime.timedelta(seconds=addition)
-        target_time = date_select + delta
-        return str(target_time)
+            print(str_time, addition)
+            date_select = datetime.datetime.strptime(str_time, '%H:%M:%S')
+            delta = datetime.timedelta(seconds=addition)
+            target_time = date_select + delta
+            return str(target_time.strftime("%H:%M:%S"))
     

@@ -36,6 +36,12 @@ def index():
 #     return Response(live_predict2.pose_yield(),
 #                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
+@app.route('/db')
+def dbo():
+    live_predict = LivePredict()
+    live_predict.show_both()
+
+
 @app.route('/video_feed_both')
 def video_feed_both():
     live_predict3 = LivePredict(mode="webpage")

@@ -34,7 +34,7 @@ class counter():
             is_updated = False
             pre_action = ""
             pre_name = ""
-            pre_duration = 0
+            pre_duration = datetime.timedelta(seconds=0)
         self.time_eta = datetime.timedelta(seconds=(datetime.datetime.now() - self.init_time).seconds)
         self.last_recorded = datetime.datetime.now()
         cur_action = action
@@ -44,5 +44,11 @@ class counter():
         if self.time_eta.seconds > 10:
             print("nice")
             
-        return is_updated, cur_action, cur_duration, pre_action, pre_duration, pre_name
+        return is_updated, cur_action, cur_duration, pre_action, pre_duration.seconds, pre_name
+    
+    def time_adder(self, str_time, addition):
+        date_select = datetime.datetime.strptime(str_time, '%H:%M:%S')
+        delta = datetime.timedelta(seconds=addition)
+        target_time = date_select + delta
+        return str(target_time)
     

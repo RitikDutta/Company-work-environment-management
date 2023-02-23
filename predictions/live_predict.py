@@ -43,7 +43,7 @@ class LivePredict:
         self.pose_predicted = 'Detecting'
         self.x, self.y, self.w, self.h=10, 10, 10, 10
         self.mp_pose = mp.solutions.pose
-        self.pose =  self.mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
+        self.pose =  self.mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5, model_complexity=2)
         self.time_gap = 7
         self.db_handler = database_handler()
 
@@ -253,13 +253,13 @@ class LivePredict:
             cap = cv2.VideoCapture(0)
             while(True):
                 success, image1 = cap.read()
-                black_image1 = self.live_predict_face(image1)
+                black_image1 = self.live_predict_face(image1, "mtcnn")
                 success, image2 = cap.read()
                 black_image2 = self.live_predict_pose(image2)
 
                 combined_image = cv2.hconcat([black_image1, black_image2])
-
                 ret, jpeg = cv2.imencode('.jpg', combined_image)
+                self.db_handler.df_handle(self.pose_predicted, self.final_name)
                 yield (b'--frame\r\n'
                         b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n\r\n')
                 cv2.waitKey(1)

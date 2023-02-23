@@ -9,10 +9,11 @@ import time
 from data_processing.counter import counter
 class CassandraCRUD:
     def __init__(self, keyspace):
+        self.keyspace = keyspace
         cloud_config= {'secure_connect_bundle': 'secure-connect-test.zip'}
         auth_provider = PlainTextAuthProvider('biTEHxuyRqFgCcFpnEMOMvkN', 'PyqybfDQpPOaLp44hlWbb1Yb7bZ2Mn5Mt-_DGMOs.qBj.JY.Z,FAnB.9ncCD+F2EsSJ7W6XD,l,3S9gZW7bgWSMQDHKvTI7Iams2.hRRz6W_biRSrttvGgs1WhAl-in9')
         self.cluster = Cluster(cloud=cloud_config, auth_provider=auth_provider)
-        self.session = self.cluster.connect(keyspace)
+        self.session = self.cluster.connect(self.keyspace)
         self.counter = counter()
 
     def create_daily_activity_table(self):
@@ -156,3 +157,9 @@ class CassandraCRUD:
         select_query = "SELECT * FROM daily_activity WHERE employee_id = %s and date = %s"
         result = self.session.execute(select_query, (employee_id, date)).one()
         return True if result else False
+    
+    def get_db(self, table):
+        query = "SELECT * FROM {}.{}".format(self.keyspace, table)
+        data = self.session.execute(query)
+        df = pd.DataFrame([d for d in data])
+        return df

@@ -2,10 +2,7 @@ import numpy as np
 from data_processing.converter import Converter
 import pandas as pd
 import mediapipe.framework.formats.landmark_pb2 as landmark_pb2
-import tensorflow as tf
 import pickle
-from tensorflow import keras
-from keras.models import load_model
 from keras_facenet import FaceNet
 from sklearn.preprocessing import LabelEncoder
 
@@ -25,7 +22,8 @@ class Prediction:
         self.face_embeddings = np.load("models/faces_embeddings.npz")
         
         # Load the model
-        self.model = load_model('models/model1.h5')
+        self.model = pickle.load(open("models/pose_SVC8_model.pkl", 'rb'))
+        # self.model = load_model('models/pose.h5')
         # Load the face model
         self.face_model = pickle.load(open("models/face_SVC_model.pkl", 'rb'))
         self.encoder = LabelEncoder()
@@ -56,7 +54,9 @@ class Prediction:
 
         class_labels = {0: 'away', 1: 'phone', 2: 'working'}
 
-        
+        d = ["{}{}".format(s, i) for i in range(1, 34) for s in ["x", "y", "z", "visibility"]]        
+        x.columns = d
+        _ = [x.drop([f'x{i}', f'y{i}', f'z{i}', f'visibility{i}'], axis=1, inplace=True) for i in range(24, 34)]
     
         # Make a prediction
         prediction = self.model.predict(x)
@@ -69,7 +69,7 @@ class Prediction:
     
         # Print the class label
     #     print("Class label:", class_label)
-        return class_label 
+        return str(prediction)
 
 
     def face_predict(self, img):

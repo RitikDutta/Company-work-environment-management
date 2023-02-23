@@ -1,7 +1,8 @@
 # import cv2
 from flask import Flask, render_template, Response
 from predictions.live_predict import LivePredict
-
+from database.database_operations import CassandraCRUD
+import pandas as pd
 app = Flask(__name__)
 
 @app.route('/')
@@ -40,6 +41,24 @@ def index():
 def dbo():
     live_predict = LivePredict()
     live_predict.show_both()
+    
+@app.route("/daily_activity")
+def show_tables():
+    crud = CassandraCRUD("test_key")
+    data = crud.get_db("daily_activity")
+    data.set_index(['employee_id'], inplace=True)
+    data.index.name=None
+    return render_template('daily_activity.html',tables=[data.to_html()],
+    titles = ["Daily Activity"])
+
+@app.route("/total_activity")
+def show_tables2():
+    crud = CassandraCRUD("test_key")
+    data = crud.get_db("total_activity")
+    data.set_index(['employee_id'], inplace=True)
+    data.index.name=None
+    return render_template('total_activity.html',tables=[data.to_html()],
+    titles = ["Total Activity"])
 
 
 @app.route('/video_feed_both')

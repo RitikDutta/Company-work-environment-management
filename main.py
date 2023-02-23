@@ -11,11 +11,12 @@ import sys
 
 
 def data_collection():
+    collection = Data_collection(class_name=sys.argv[2], collection_type=sys.argv[3])
     try:
-        collection = Data_collection(class_name=sys.argv[2], collection_type=sys.argv[3])
-        
-        # collection.pose_collection()
-        collection.face_collection()
+        if sys.argv[3] == "pose":
+            collection.pose_collection()
+        elif sys.argv[3] == "face":
+            collection.face_collection()
     except IndexError:
         print('main.py has arguments:\nclass name:  name of class to capture data')
 
@@ -29,8 +30,9 @@ def test_prediction():
             prediction.show_face(sys.argv[3])
         elif sys.argv[2] == "db":
             prediction.show_both()
-    except IndexError:
+    except IndexError as e:
         print("Please Select from\n1.Pose\n2.Face")
+        print(e)
 
 def db_crud():
     crud = CassandraCRUD("test_key")

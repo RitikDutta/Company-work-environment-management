@@ -13,14 +13,14 @@ class database_handler():
         print("--", pre_duration)
         d = datetime.datetime.today().date()
         t = datetime.datetime.today().time()
-        if name:
+        if pre_name:
             print("insert {} for {} into {} record".format(pre_action, pre_duration, pre_name))
             if pre_action == "phone":
                 self.db.update_activity(employee_id=str(pre_name), date=d, phone_usage_duration=pre_duration, end_time=t)
             elif pre_action == "working":
                 self.db.update_activity(employee_id=str(pre_name), date=d, work_hours=pre_duration, end_time=t)
-            elif pre_action == "looking away":
-                self.db.update_activity(employee_id=str(pre_name), date=d, looking_away_duration=pre_duration, end_time=t)
+            elif pre_action == "away":
+                self.db.update_activity(employee_id=str(pre_name), date=d, looking_away_duration=pre_duration, end_time=t, looking_away_frequency=1)
 
 
 

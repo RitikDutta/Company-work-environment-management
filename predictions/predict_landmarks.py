@@ -69,7 +69,7 @@ class Prediction:
     
         # Print the class label
     #     print("Class label:", class_label)
-        return str(prediction)
+        return str(prediction[0])
 
 
     def face_predict(self, img):

@@ -30,15 +30,12 @@ class LivePredict:
         self.haarcascade = cv2.CascadeClassifier("models/haarcascade_frontalface_default.xml")
         self.detector = MTCNN()
         self.mode=mode
-        self.cap = cv2.VideoCapture(0)
-        self.success, self.img = self.cap.read()
-        self.cap.release()
-        # self.img = None
+        # self.cap = cv2.VideoCapture(0)
+        # self.success, self.img = self.cap.read()
+        # self.cap.release()
         self.mp_drawing = mp.solutions.drawing_utils
         self.mp_drawing_styles = mp.solutions.drawing_styles
         self.mp_face_mesh = mp.solutions.face_mesh
-            # self.landmarks = landmark_pb2.NormalizedLandmarkList()
-        # self.a='a'
         self.final_name = ""
         self.pose_predicted = 'Detecting'
         self.x, self.y, self.w, self.h=10, 10, 10, 10
@@ -172,6 +169,8 @@ class LivePredict:
         while(True):
             success, image = cap.read()
             black_image = self.live_predict_pose(image)
+            print(self.final_name)
+            print(self.pose_predicted)
             cv2.imshow('MediaPipe Face Mesh', black_image)
             if cv2.waitKey(5) & 0xFF == ord('q'):
                 break
@@ -209,9 +208,10 @@ class LivePredict:
             black_image = self.live_predict_pose(image)
             # cv2.imshow('MediaPipe Face Mesh', black_image)            
             # time.sleep(1)
-            print(self.final_name)
-            print(self.pose_predicted)
+
             # return self.final_name, self.pose_predicted
+            print("*"*50)
+            print(self.pose_predicted, self.final_name)
             self.db_handler.df_handle(self.pose_predicted, self.final_name)
         cap.release()
         cv2.destroyAllWindows()

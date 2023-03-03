@@ -1,0 +1,43 @@
+<html>
+  <head>
+    <title>Video Stream</title>
+    <style>
+      .box {
+        width: 65%;
+        height: fit-content;
+        /* border: 5px dashed #f7a239; */
+        margin: auto;
+        padding: 10px;
+        align-content: center;
+      }
+      .frame1{
+        width: 100%;
+        height: 60vh;
+        /* border: 5px dashed firebrick; */
+        margin: auto;
+        padding: 10px;
+        align-content: center;
+      }
+      img {
+        width: 100%; 
+        height: 100%;
+      }
+      iframe{
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="./daily_activity">daily_activity</a>
+    <br><br><br><br><br><br><br><br><br>
+    <h1>Video Stream</h1>
+    <div class="box">
+      <img src="{{ url_for('video_feed_both', frame_id='frame1') }}" id="frame1" style="display: flex;">
+    </div>
+    <div class="frame1">
+      <iframe src="./daily_activity" title="description"></iframe>
+    </div>
+
+  </body>
+</html>

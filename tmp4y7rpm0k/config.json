@@ -1,0 +1,16 @@
+{
+  "host": "827f8a5c-c113-4d00-96e3-19591f848b34-asia-south1.db.astra.datastax.com",
+  "port": 29080,
+  "cql_port": 29042,
+  "keyspace": "test_key",
+  "localDC": "asia-south1",
+  "caCertLocation": "./ca.crt",
+  "keyLocation": "./key",
+  "certLocation": "./cert",
+  "keyStoreLocation": "./identity.jks",
+  "keyStorePassword": "j0n4yNZFhO5l9GL6d",
+  "trustStoreLocation": "./trustStore.jks",
+  "trustStorePassword": "6jgneAIbXqs8YM143",
+  "csvLocation": "./data",
+  "pfxCertPassword": "germ98oL4Ef3xP5BI"
+}

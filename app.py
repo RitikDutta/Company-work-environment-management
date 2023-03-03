@@ -67,6 +67,10 @@ def video_feed_both():
     return Response(live_predict3.yield_both(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
+@app.route('/video')
+def video():
+    return render_template('video_feed.html')
+
 
 
 if __name__ == '__main__':

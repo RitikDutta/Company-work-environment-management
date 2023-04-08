@@ -3,7 +3,9 @@ from flask import Flask, render_template, Response
 from predictions.live_predict import LivePredict
 from database.database_operations import CassandraCRUD
 import pandas as pd
-app = Flask(__name__)
+
+application = Flask(__name__)
+app = application
 
 @app.route('/')
 def index():
@@ -75,4 +77,4 @@ def video():
 
 if __name__ == '__main__':
     
-    app.run(debug=True)
+    app.run()

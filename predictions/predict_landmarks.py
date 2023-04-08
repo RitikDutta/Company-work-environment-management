@@ -5,6 +5,7 @@ import mediapipe.framework.formats.landmark_pb2 as landmark_pb2
 import pickle
 from keras_facenet import FaceNet
 from sklearn.preprocessing import LabelEncoder
+from keras.models import load_model
 
 class Prediction:
     """
@@ -22,7 +23,7 @@ class Prediction:
         self.face_embeddings = np.load("models/faces_embeddings.npz")
         
         # Load the model
-        self.model = pickle.load(open("models/pose_SVC8_model.pkl", 'rb'))
+        self.model = pickle.load(open("models/xgb_pose.pkl", 'rb'))
         # self.model = load_model('models/pose.h5')
         # Load the face model
         self.face_model = pickle.load(open("models/face_SVC_model.pkl", 'rb'))
@@ -56,7 +57,7 @@ class Prediction:
 
         d = ["{}{}".format(s, i) for i in range(1, 34) for s in ["x", "y", "z", "visibility"]]        
         x.columns = d
-        _ = [x.drop([f'x{i}', f'y{i}', f'z{i}', f'visibility{i}'], axis=1, inplace=True) for i in range(24, 34)]
+        # _ = [x.drop([f'x{i}', f'y{i}', f'z{i}', f'visibility{i}'], axis=1, inplace=True) for i in range(24, 34)]
     
         # Make a prediction
         prediction = self.model.predict(x)
@@ -65,11 +66,21 @@ class Prediction:
         class_index = np.argmax(prediction)
     
         # Look up the class label in the dictionary
-        class_label = class_labels[class_index]
+        # class_label = class_labels[class_index]
     
         # Print the class label
     #     print("Class label:", class_label)
-        return str(prediction[0])
+
+        # return str(prediction[0])
+        print(prediction)
+        return str(class_labels[prediction[0]])
+        # return str(np.argmax(prediction))
+        # if np.argmax(prediction) == 0:
+        #     return("away")
+        # elif np.argmax(prediction) == 1:
+        #     return("phone")
+        # elif np.argmax(prediction) == 2:
+        #     return("working")
 
 
     def face_predict(self, img):

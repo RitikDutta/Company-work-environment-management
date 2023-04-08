@@ -225,6 +225,7 @@ class LivePredict:
 
     def face_yield(self):
         cap = cv2.VideoCapture(0)
+
         while(True):
             success, image = cap.read()
             black_image = self.live_predict_face(image)
@@ -251,6 +252,7 @@ class LivePredict:
     def yield_both(self):
         try:
             cap = cv2.VideoCapture(0)
+
             while(True):
                 success, image1 = cap.read()
                 black_image1 = self.live_predict_face(image1, "mtcnn")

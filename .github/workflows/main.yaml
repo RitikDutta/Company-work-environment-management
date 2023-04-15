@@ -85,9 +85,7 @@ jobs:
         run: |
          docker stop $(docker ps -a -q)docker rmi $(docker images -q)
          docker rmi $(docker images -q)
-
          
-    	  
       - name: Pull latest images
         run: |
          docker pull ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest

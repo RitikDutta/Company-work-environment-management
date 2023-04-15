@@ -82,14 +82,13 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
       
       - name: Stop and remove containers if running
-      	run: |
-      	 docker stop $(docker ps -a -q)docker rmi $(docker images -q)
-      	 docker rmi $(docker images -q)
+        run: |
+         docker stop $(docker ps -a -q)docker rmi $(docker images -q)
+         docker rmi $(docker images -q)
 
          
     	  
       - name: Pull latest images
-      	run: 
         run: |
          docker pull ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
          

@@ -84,9 +84,9 @@ jobs:
       - name: Stop and remove containers if running
         run: |
          docker stop $(docker ps -a -q)
-         docker rmi $(docker images -q) -f
-         docker image prune -a -y
-         docker container prune -y
+         docker rmi $(docker images -q) -f || true
+         y | docker image prune -a -y || true
+         y | docker container prune -y || true
          echo $(df -H)
         continue-on-error: true
          

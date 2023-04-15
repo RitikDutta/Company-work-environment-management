@@ -85,8 +85,8 @@ jobs:
         run: |
          docker stop $(docker ps -a -q)
          docker rmi $(docker images -q) -f || true
-         y | docker image prune -a -y || true
-         y | docker container prune -y || true
+         y | docker image prune -a || true
+         y | docker container prune || true
          echo $(df -H)
         continue-on-error: true
          

@@ -30,7 +30,8 @@ class LivePredict:
         self.haarcascade = cv2.CascadeClassifier("models/haarcascade_frontalface_default.xml")
         self.detector = MTCNN()
         self.mode=mode
-        # self.cap = cv2.VideoCapture(0)
+        self.source = 0
+        # self.cap = cv2.VideoCapture(self.source)
         # self.success, self.img = self.cap.read()
         # self.cap.release()
         self.mp_drawing = mp.solutions.drawing_utils
@@ -43,6 +44,16 @@ class LivePredict:
         self.pose =  self.mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5, model_complexity=2)
         self.time_gap = 7
         self.db_handler = database_handler()
+
+    def get_available_cameras():
+    """Returns a list of available camera sources."""
+    available_sources = []
+    for i in range(10):
+        cap = cv2.VideoCapture(i)
+        if cap.isOpened():
+            available_sources.append(i)
+            cap.release()
+    return available_sources
 
     def live_predict_pose(self, image):
         """
@@ -165,7 +176,7 @@ class LivePredict:
             return black_image
 
     def show_pose(self):
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(get_available_cameras())
         while(True):
             success, image = cap.read()
             black_image = self.live_predict_pose(image)
@@ -180,7 +191,7 @@ class LivePredict:
 
 
     def show_face(self, detection_model):
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(get_available_cameras())
         while(True):
             success, image = cap.read()
             black_image = self.live_predict_face(image, detection_model)
@@ -198,7 +209,7 @@ class LivePredict:
         cv2.destroyAllWindows()
 
     def show_both(self, detection_model="mtcnn"):
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(get_available_cameras())
         while(True):
             success, image = cap.read()
             black_image = self.live_predict_face(image, detection_model)
@@ -224,7 +235,7 @@ class LivePredict:
 
 
     def face_yield(self):
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(get_available_cameras())
 
         while(True):
             success, image = cap.read()
@@ -238,7 +249,7 @@ class LivePredict:
         cap.release()
 
     def pose_yield(self):
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(get_available_cameras())
         while(True):
             success, image = cap.read()
             black_image = self.live_predict_pose(image)
@@ -251,7 +262,7 @@ class LivePredict:
 
     def yield_both(self):
         try:
-            cap = cv2.VideoCapture(0)
+            cap = cv2.VideoCapture(get_available_cameras())
 
             while(True):
                 success, image1 = cap.read()

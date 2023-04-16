@@ -45,7 +45,7 @@ class LivePredict:
         self.time_gap = 7
         self.db_handler = database_handler()
 
-    def get_available_cameras():
+    def get_available_cameras(self):
         available_source = 0
         for i in range(10):
             cap = cv2.VideoCapture(i)
@@ -175,7 +175,7 @@ class LivePredict:
             return black_image
 
     def show_pose(self):
-        cap = cv2.VideoCapture(get_available_cameras())
+        cap = cv2.VideoCapture(self.get_available_cameras())
         while(True):
             success, image = cap.read()
             black_image = self.live_predict_pose(image)
@@ -190,7 +190,7 @@ class LivePredict:
 
 
     def show_face(self, detection_model):
-        cap = cv2.VideoCapture(get_available_cameras())
+        cap = cv2.VideoCapture(self.get_available_cameras())
         while(True):
             success, image = cap.read()
             black_image = self.live_predict_face(image, detection_model)
@@ -208,7 +208,7 @@ class LivePredict:
         cv2.destroyAllWindows()
 
     def show_both(self, detection_model="mtcnn"):
-        cap = cv2.VideoCapture(get_available_cameras())
+        cap = cv2.VideoCapture(self.get_available_cameras())
         while(True):
             success, image = cap.read()
             black_image = self.live_predict_face(image, detection_model)
@@ -234,7 +234,7 @@ class LivePredict:
 
 
     def face_yield(self):
-        cap = cv2.VideoCapture(get_available_cameras())
+        cap = cv2.VideoCapture(self.get_available_cameras())
 
         while(True):
             success, image = cap.read()
@@ -248,7 +248,7 @@ class LivePredict:
         cap.release()
 
     def pose_yield(self):
-        cap = cv2.VideoCapture(get_available_cameras())
+        cap = cv2.VideoCapture(self.get_available_cameras())
         while(True):
             success, image = cap.read()
             black_image = self.live_predict_pose(image)
@@ -261,7 +261,7 @@ class LivePredict:
 
     def yield_both(self):
         try:
-            cap = cv2.VideoCapture(get_available_cameras())
+            cap = cv2.VideoCapture(self.get_available_cameras())
 
             while(True):
                 success, image1 = cap.read()

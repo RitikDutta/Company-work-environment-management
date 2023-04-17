@@ -46,7 +46,7 @@ class LivePredict:
         self.db_handler = database_handler()
 
     def get_available_cameras(self):
-        available_source = 0
+        available_sources = 0
         for i in range(10):
             cap = cv2.VideoCapture(i)
             if cap.isOpened():

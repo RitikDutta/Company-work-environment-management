@@ -76,7 +76,7 @@ def video():
 
 @app.route('/test_stream')
 def test_stream():
-    return "hell0"
+    return render_template('test_stream.html')
 
 
 if __name__ == '__main__':

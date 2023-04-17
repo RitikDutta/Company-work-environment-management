@@ -74,6 +74,10 @@ def video():
     return render_template('video_feed.html')
 
 
+@app.route('/test_stream')
+def test_stream():
+    return "hell0"
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8080)

@@ -1,72 +1,51 @@
 <!DOCTYPE html>
-<html>
-  <head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
     <title>Webcam Stream</title>
-  </head>
-  <body>
+</head>
+<body>
+    <h1>Webcam Stream</h1>
     <video id="video" width="640" height="480" autoplay></video>
-    <button id="startButton">Start</button>
-    <button id="stopButton">Stop</button>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
     <script>
-      var video = document.getElementById('video');
-      var startButton = document.getElementById('startButton');
-      var stopButton = document.getElementById('stopButton');
-      var stream = null;
+        // Get the video element
+        var video = document.getElementById('video');
 
-      function startStreaming() {
-        navigator.mediaDevices.getUserMedia({video: true})
-          .then(function (s) {
-            stream = s;
-            video.srcObject = stream;
-            video.play();
-          })
-          .catch(function (err) {
-            console.log("An error occurred: " + err);
-          });
-      }
-
-      function stopStreaming() {
-        if (stream) {
-          stream.getTracks().forEach(function (track) {
-            track.stop();
-          });
-        }
-        video.srcObject = null;
-      }
-
-      startButton.onclick = startStreaming;
-      stopButton.onclick = stopStreaming;
-
-      // Send video stream to Flask server for processing
-      var ws = new WebSocket("ws://localhost:5000/video");
-
-      ws.onopen = function() {
-        console.log("WebSocket opened");
-      };
-
-      video.addEventListener('play', function () {
-        var canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        // Get the canvas element
+        var canvas = document.getElementById('canvas');
         var context = canvas.getContext('2d');
 
-        setInterval(function () {
-          if (video.paused || video.ended) {
-            return;
-          }
-          context.drawImage(video, 0, 0, canvas.width, canvas.height);
-          var data = canvas.toDataURL('image/jpeg', 0.5);
-          ws.send(data);
-        }, 1000 / 30);
-      }, false);
+        // Constraints for the video stream
+        var constraints = { audio: false, video: true };
 
-      ws.onclose = function() {
-        console.log("WebSocket closed");
-      };
+        // Get the video stream
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(function(stream) {
+                // Attach the video stream to the video element
+                video.srcObject = stream;
+            })
+            .catch(function(error) {
+                console.log('Error accessing webcam stream:', error);
+            });
 
-      ws.onerror = function() {
-        console.log("WebSocket error");
-      };
+        // Send the video stream to Flask server
+        setInterval(function() {
+            // Draw the video frame on the canvas
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Get the base64 encoded image data from the canvas
+            var data = canvas.toDataURL();
+
+            // Send the image data to Flask server using AJAX
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/process_video');
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function() {
+                console.log(xhr.responseText);
+            };
+            xhr.send(JSON.stringify({ data: data }));
+        }, 100);
     </script>
-  </body>
+</body>
 </html>

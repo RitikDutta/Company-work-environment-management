@@ -1,113 +1,37 @@
+from flask import Flask, render_template, request
 import cv2
-from flask import Flask, render_template, Response, jsonify, request
-from predictions.live_predict import LivePredict
-from database.database_operations import CassandraCRUD
-import pandas as pd
-from flask_socketio import SocketIO, emit
+import numpy as np
 import base64
+import io
 
-application = Flask(__name__)
+app = Flask(__name__)
 
-app = application
-# socketio = SocketIO(app)
-
-
+# Route to render the stream.html template
 @app.route('/')
 def index():
-    return render_template('index.html')
-
-# def gen():
-#     live_predict = LivePredict()
-#     while True:
-#         live_predict.live_predict_face()
-#         processed_image = live_predict.image
-#         print(processed_image)
-#         ret, jpeg = cv2.imencode('.jpg', processed_image)
-#         yield (b'--frame\r\n'
-#                 b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n\r\n')
-
-
-    
-
-# @app.route('/video_feed')
-# def video_feed():
-#     live_predict = LivePredict(mode="webpage")
-#     print("face")
-#     return Response(live_predict.face_yield(),
-#                     mimetype='multipart/x-mixed-replace; boundary=frame')
-
-
-# @app.route('/video_feed_pose')
-# def video_feed_pose():
-#     live_predict2 = LivePredict(mode="webpage")
-#     print("pose")
-#     return Response(live_predict2.pose_yield(),
-#                     mimetype='multipart/x-mixed-replace; boundary=frame')
-
-@app.route('/db')
-def dbo():
-    live_predict = LivePredict()
-    live_predict.show_both()
-    
-@app.route("/daily_activity")
-def show_tables():
-    crud = CassandraCRUD("test_key")
-    data = crud.get_db("daily_activity")
-    data.set_index(['employee_id'], inplace=True)
-    data.index.name=None
-    return render_template('daily_activity.html',tables=[data.to_html()],
-    titles = ["Daily Activity"])
-
-@app.route("/total_activity")
-def show_tables2():
-    crud = CassandraCRUD("test_key")
-    data = crud.get_db("total_activity")
-    data.set_index(['employee_id'], inplace=True)
-    data.index.name=None
-    return render_template('total_activity.html',tables=[data.to_html()],
-    titles = ["Total Activity"])
-
-
-@app.route('/video_feed_both')
-def video_feed_both():
-    live_predict3 = LivePredict(mode="webpage")
-    return Response(live_predict3.yield_both(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
-
-# @app.route('/video')
-# def video():
-#     return render_template('video_feed.html')
-
-
-@app.route('/stream')
-def stream():
     return render_template('stream.html')
 
-@app.route('/video')
-def video():
-    return Response(process_video(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
+# Route to receive the video stream and process it using OpenCV
+@app.route('/process_video', methods=['POST'])
 def process_video():
-    cap = cv2.VideoCapture(0)
+    # Get the base64 encoded image data from the request
+    data = request.json['data']
 
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
+    # Decode the base64 encoded image data and convert it to a numpy array
+    image_data = base64.b64decode(data.split(',')[1])
+    image_array = np.frombuffer(image_data, dtype=np.uint8)
 
-        # Process video frame here using OpenCV
+    # Read the image array using OpenCV
+    image = cv2.imdecode(image_array, flags=cv2.IMREAD_COLOR)
 
-        ret, jpeg = cv2.imencode('.jpg', frame)
-        frame_bytes = jpeg.tobytes()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+    # Print the shape of the image to confirm it has been received correctly
+    print(image.shape)
 
-    cap.release()
+    # Process the image using OpenCV
+    # ...
 
-
-
-
-
+    # Return a response
+    return 'Video received and processed successfully!'
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    app.run()

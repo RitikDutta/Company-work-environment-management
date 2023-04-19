@@ -1,11 +1,16 @@
-# import cv2
-from flask import Flask, render_template, Response
+import cv2
+from flask import Flask, render_template, Response, jsonify, request
 from predictions.live_predict import LivePredict
 from database.database_operations import CassandraCRUD
 import pandas as pd
+from flask_socketio import SocketIO, emit
+import base64
 
 application = Flask(__name__)
+
 app = application
+# socketio = SocketIO(app)
+
 
 @app.route('/')
 def index():
@@ -69,15 +74,40 @@ def video_feed_both():
     return Response(live_predict3.yield_both(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
+# @app.route('/video')
+# def video():
+#     return render_template('video_feed.html')
+
+
+@app.route('/stream')
+def stream():
+    return render_template('stream.html')
+
 @app.route('/video')
 def video():
-    return render_template('video_feed.html')
+    return Response(process_video(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+def process_video():
+    cap = cv2.VideoCapture(0)
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        # Process video frame here using OpenCV
+
+        ret, jpeg = cv2.imencode('.jpg', frame)
+        frame_bytes = jpeg.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+
+    cap.release()
 
 
-@app.route('/test_stream')
-def test_stream():
-    return render_template('stream.html')
+
+
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=8080)
+    app.run(host="0.0.0.0", port=8080, debug=True)

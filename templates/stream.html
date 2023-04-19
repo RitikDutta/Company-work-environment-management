@@ -1,26 +1,72 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
     <title>Webcam Stream</title>
-    <style>
-      video {
-        width: 640px;
-        height: 480px;
-      }
-    </style>
   </head>
   <body>
-    <video id="video" autoplay></video>
+    <video id="video" width="640" height="480" autoplay></video>
+    <button id="startButton">Start</button>
+    <button id="stopButton">Stop</button>
     <script>
-      navigator.mediaDevices.getUserMedia({ video: true })
-        .then(function(stream) {
-          var video = document.querySelector('#video');
-          video.srcObject = stream;
-        })
-        .catch(function(err) {
-          console.log('Error: ' + err);
-        });
+      var video = document.getElementById('video');
+      var startButton = document.getElementById('startButton');
+      var stopButton = document.getElementById('stopButton');
+      var stream = null;
+
+      function startStreaming() {
+        navigator.mediaDevices.getUserMedia({video: true})
+          .then(function (s) {
+            stream = s;
+            video.srcObject = stream;
+            video.play();
+          })
+          .catch(function (err) {
+            console.log("An error occurred: " + err);
+          });
+      }
+
+      function stopStreaming() {
+        if (stream) {
+          stream.getTracks().forEach(function (track) {
+            track.stop();
+          });
+        }
+        video.srcObject = null;
+      }
+
+      startButton.onclick = startStreaming;
+      stopButton.onclick = stopStreaming;
+
+      // Send video stream to Flask server for processing
+      var ws = new WebSocket("ws://localhost:5000/video");
+
+      ws.onopen = function() {
+        console.log("WebSocket opened");
+      };
+
+      video.addEventListener('play', function () {
+        var canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        var context = canvas.getContext('2d');
+
+        setInterval(function () {
+          if (video.paused || video.ended) {
+            return;
+          }
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+          var data = canvas.toDataURL('image/jpeg', 0.5);
+          ws.send(data);
+        }, 1000 / 30);
+      }, false);
+
+      ws.onclose = function() {
+        console.log("WebSocket closed");
+      };
+
+      ws.onerror = function() {
+        console.log("WebSocket error");
+      };
     </script>
   </body>
 </html>

@@ -7,45 +7,35 @@
 <body>
     <h1>Webcam Stream</h1>
     <video id="video" width="640" height="480" autoplay></video>
-    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+    <canvas id="canvas" width="640" height="480"></canvas>
     <script>
-        // Get the video element
-        var video = document.getElementById('video');
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+        const socket = new WebSocket(ws_scheme + '://' + window.location.host + '/video_feed');
 
-        // Get the canvas element
-        var canvas = document.getElementById('canvas');
-        var context = canvas.getContext('2d');
+        socket.onmessage = function(event) {
+            let data = JSON.parse(event.data);
+            let shape = data.shape;
+            let image = new ImageData(new Uint8ClampedArray(data.data), shape[1], shape[0]);
+            context.putImageData(image, 0, 0);
+        }
 
-        // Constraints for the video stream
-        var constraints = { audio: false, video: true };
-
-        // Get the video stream
-        navigator.mediaDevices.getUserMedia(constraints)
-            .then(function(stream) {
-                // Attach the video stream to the video element
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
                 video.srcObject = stream;
-            })
-            .catch(function(error) {
-                console.log('Error accessing webcam stream:', error);
+                video.play();
+
+                // Send video stream to server
+                const FPS = 30;
+                setInterval(function() {
+                    context.drawImage(video, 0, 0, 640, 480);
+                    let data = canvas.toDataURL('image/jpeg', 0.8);
+                    socket.send(data);
+                }, 1000 / FPS);
             });
-
-        // Send the video stream to Flask server
-        setInterval(function() {
-            // Draw the video frame on the canvas
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            // Get the base64 encoded image data from the canvas
-            var data = canvas.toDataURL();
-
-            // Send the image data to Flask server using AJAX
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/process_video');
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.onload = function() {
-                console.log(xhr.responseText);
-            };
-            xhr.send(JSON.stringify({ data: data }));
-        }, 100);
+        }
     </script>
 </body>
 </html>

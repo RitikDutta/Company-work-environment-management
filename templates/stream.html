@@ -1,41 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Webcam Stream</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
 </head>
 <body>
-    <h1>Webcam Stream</h1>
-    <video id="video" width="640" height="480" autoplay></video>
-    <canvas id="canvas" width="640" height="480"></canvas>
-    <script>
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const context = canvas.getContext('2d');
-        const ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-        const socket = new WebSocket(ws_scheme + '://' + window.location.host + '/video_feed');
-
-        socket.onmessage = function(event) {
-            let data = JSON.parse(event.data);
-            let shape = data.shape;
-            let image = new ImageData(new Uint8ClampedArray(data.data), shape[1], shape[0]);
-            context.putImageData(image, 0, 0);
-        }
-
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
-                video.srcObject = stream;
-                video.play();
-
-                // Send video stream to server
-                const FPS = 30;
-                setInterval(function() {
-                    context.drawImage(video, 0, 0, 640, 480);
-                    let data = canvas.toDataURL('image/jpeg', 0.8);
-                    socket.send(data);
-                }, 1000 / FPS);
-            });
-        }
-    </script>
+  <h1>Webcam Stream</h1>
+                    <video id="video" width="640" height="480" autoplay></video>
+                    <canvas id="canvas" width="640" height="480"></canvas>
+                    <img id="processed-image" width="640" height="480">
+                    <script>
+                        const video = document.getElementById('video');
+                        const canvas = document.getElementById('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const processedImage = document.getElementById('processed-image');
+                        navigator.mediaDevices.getUserMedia({video: true}).then((stream) => {
+                            video.srcObject = stream;
+                            video.play();
+                        });
+                        setInterval(() => {
+                            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                            const imgData = canvas.toDataURL('image/jpeg');
+                            fetch('/process_image', {
+                                method: 'POST',
+                                body: JSON.stringify({image: imgData}),
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                }
+                            }).then((res) => {
+                                return res.json();
+                            }).then((data) => {
+                                processedImage.src = data.image;
+                            });
+                        }, 1);
+                    </script>
 </body>
 </html>

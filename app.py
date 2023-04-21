@@ -79,43 +79,9 @@ def video_feed_both():
 def video():
     return render_template('video_feed.html')
 
-@app.route('/stream', methods=['GET'])
-def web():
-        return '''
-            <html>
-                <body>
-                    <h1>Webcam Stream</h1>
-                    <video id="video" width="640" height="480" autoplay></video>
-                    <canvas id="canvas" width="640" height="480"></canvas>
-                    <img id="processed-image" width="640" height="480">
-                    <script>
-                        const video = document.getElementById('video');
-                        const canvas = document.getElementById('canvas');
-                        const ctx = canvas.getContext('2d');
-                        const processedImage = document.getElementById('processed-image');
-                        navigator.mediaDevices.getUserMedia({video: true}).then((stream) => {
-                            video.srcObject = stream;
-                            video.play();
-                        });
-                        setInterval(() => {
-                            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                            const imgData = canvas.toDataURL('image/jpeg');
-                            fetch('/process_image', {
-                                method: 'POST',
-                                body: JSON.stringify({image: imgData}),
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                }
-                            }).then((res) => {
-                                return res.json();
-                            }).then((data) => {
-                                processedImage.src = data.image;
-                            });
-                        }, 1000);
-                    </script>
-                </body>
-            </html>
-    '''
+@app.route('/stream')
+def stream():
+    return render_template('stream.html')
 
 @app.route('/process_image', methods=['POST'])
 def process_image():

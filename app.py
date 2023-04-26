@@ -2,9 +2,12 @@ import cv2
 import numpy as np
 from flask import Flask, render_template, Response, jsonify, request
 from predictions.live_predict import LivePredict
+from data_processing.converter import Converter
 from database.database_operations import CassandraCRUD
 import pandas as pd
 from flask_socketio import SocketIO, emit
+from camera.camera import VideoCamera
+
 import base64
 
 application = Flask(__name__)
@@ -85,17 +88,55 @@ def stream():
 
 @app.route('/process_image', methods=['POST'])
 def process_image():
+    lp = Converter()
+    # lp = LivePredict()
     data = request.json
     img_base64 = data['image']
     img = base64.b64decode(img_base64.split(',')[1])
     npimg = np.frombuffer(img, np.uint8)
     frame = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    x, y, w, h = 50,50,50,50
-    cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+
+    x, y, w, h = 110,110,150,150
+    gray = cv2.rectangle(gray, (x, y), (x+w, y+h), (0, 255, 0), 2)
     _, img_encoded = cv2.imencode('.jpg', gray)
     img_base64 = base64.b64encode(img_encoded).decode('utf-8')
     return jsonify({'image': f'data:image/jpeg;base64,{img_base64}'})
+
+
+
+@app.route('/camera',methods=['POST'])
+def camera():
+    cap=cv2.VideoCapture(0)
+    while True:
+        ret,img=cap.read()
+        img=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+        cv2.imwrite("static/cam.png",img)
+
+        # return render_template("camera.html",result=)
+        time.sleep(0.1)
+        return json.dumps({'status': 'OK', 'result': "static/cam.png"})
+        if cv2.waitKey(0) & 0xFF ==ord('q'):
+            break
+    cap.release()
+    # file="/home/ashish/Downloads/THOUGHT.png"
+    # with open(file,'rb') as file:
+    #     image=base64.encodebytes(file.read())
+    #     print(type(image))
+    # return json.dumps({'status': 'OK', 'user': user, 'pass': password});
+    return json.dumps({'status': 'OK', 'result': "static/cam.png"});
+
+def gen(camera):
+    while True:
+        data= camera.get_frame()
+
+        frame=data[0]
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(gen(VideoCamera()), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 

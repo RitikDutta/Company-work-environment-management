@@ -233,12 +233,12 @@ class LivePredict:
 
 
 
-    def face_yield(self):
+    def face_yield(self, img):
         cap = cv2.VideoCapture(self.get_available_cameras())
 
         while(True):
             success, image = cap.read()
-            black_image = self.live_predict_face(image)
+            black_image = self.live_predict_face(img)
 
             ret, jpeg = cv2.imencode('.jpg', black_image)
             yield (b'--frame\r\n'
@@ -247,17 +247,17 @@ class LivePredict:
         print(error)
         cap.release()
 
-    def pose_yield(self):
-        cap = cv2.VideoCapture(self.get_available_cameras())
+    def pose_yield(self, img):
+        # cap = cv2.VideoCapture(self.get_available_cameras())
         while(True):
-            success, image = cap.read()
-            black_image = self.live_predict_pose(image)
+            # success, image = cap.read()
+            black_image = self.live_predict_pose(img)
 
             ret, jpeg = cv2.imencode('.jpg', black_image)
             yield (b'--frame\r\n'
                     b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n\r\n')
             cv2.waitKey(1)
-        cap.release()
+        # cap.release()
 
     def yield_both(self):
         try:

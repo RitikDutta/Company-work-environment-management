@@ -5,9 +5,9 @@ from predictions.live_predict import LivePredict
 from data_processing.converter import Converter
 from database.database_operations import CassandraCRUD
 import pandas as pd
-# from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit
 from camera.camera import VideoCamera
-
+import time
 import base64
 
 application = Flask(__name__)
@@ -86,9 +86,9 @@ def video():
 def stream():
     return render_template('stream.html')
 
+lp = LivePredict()
 @app.route('/process_image', methods=['POST'])
 def process_image():
-    lp = Converter()
     # lp = LivePredict()
     data = request.json
     img_base64 = data['image']
@@ -96,9 +96,17 @@ def process_image():
     npimg = np.frombuffer(img, np.uint8)
     frame = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # abc = np.frombuffer(base64.b64decode(next(lp.get_pose(frame))))
+    time.sleep(0.01)
+    abc = (lp.get_pose(frame))
+
+    # print("abc: ", type(abc))
+    # print(abc.shape)
+    print("gray: ", type(gray))
+    print(gray.shape)
 
     x, y, w, h = 110,110,150,150
-    gray = cv2.rectangle(gray, (x, y), (x+w, y+h), (0, 255, 0), 2)
+    gray = cv2.rectangle(abc, (x, y), (x+w, y+h), (0, 255, 0), 2)
     _, img_encoded = cv2.imencode('.jpg', gray)
     img_base64 = base64.b64encode(img_encoded).decode('utf-8')
     return jsonify({'image': f'data:image/jpeg;base64,{img_base64}'})

@@ -1,3 +1,4 @@
+import base64
 import cv2
 import mediapipe as mp
 import time
@@ -278,3 +279,13 @@ class LivePredict:
         except (AttributeError) as error:
             print(error)
         cap.release()
+
+    def get_pose(self, img):
+        # cap = cv2.VideoCapture(self.get_available_cameras())
+            # success, image = cap.read()
+        black_image = self.live_predict_pose(img)
+
+        # ret, jpeg = cv2.imencode('.jpg', black_image)
+        image_64_encode = base64.b64encode(black_image)
+        return (black_image)
+        # cap.release()

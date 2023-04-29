@@ -5,7 +5,7 @@ from predictions.live_predict import LivePredict
 from data_processing.converter import Converter
 from database.database_operations import CassandraCRUD
 import pandas as pd
-from flask_socketio import SocketIO, emit
+# from flask_socketio import SocketIO, emit
 from camera.camera import VideoCamera
 import time
 import base64

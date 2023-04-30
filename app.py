@@ -97,7 +97,7 @@ def process_image():
     frame = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # abc = np.frombuffer(base64.b64decode(next(lp.get_pose(frame))))
-    time.sleep(0.1)
+    time.sleep(0.5)
     abc = (lp.get_pose(frame))
 
     # print("abc: ", type(abc))

@@ -87,6 +87,7 @@ def stream():
     return render_template('stream.html')
 
 lp = LivePredict()
+
 @app.route('/process_image', methods=['POST'])
 def process_image():
     # lp = LivePredict()
@@ -97,8 +98,12 @@ def process_image():
     frame = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # abc = np.frombuffer(base64.b64decode(next(lp.get_pose(frame))))
-    time.sleep(1)
-    abc = (lp.get_pose(frame))
+    current_time = int(time.time())
+    if (current_time % 5 == 0):
+        # time.sleep(1)
+        abc = (lp.get_pose(frame))
+    elif abc != None:
+        abc = frame
 
     # print("abc: ", type(abc))
     # print(abc.shape)

@@ -113,7 +113,7 @@ def process_image():
             _, img_encoded = cv2.imencode('.jpg', gray)
             img_base64 = base64.b64encode(img_encoded).decode('utf-8')
             return jsonify({'image': f'data:image/jpeg;base64,{img_base64}'})
-            time.sleep(1)
+            time.sleep(4)
         else:
             return "200"
     except (RuntimeError, ValueError) as e:

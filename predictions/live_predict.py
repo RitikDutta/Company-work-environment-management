@@ -283,9 +283,11 @@ class LivePredict:
     def get_pose(self, img):
         # cap = cv2.VideoCapture(self.get_available_cameras())
             # success, image = cap.read()
+        time.sleep(0.5)
         black_image = self.live_predict_pose(img)
-
+        _, img_encoded = cv2.imencode('.jpg', black_image)
+        img_base64 = base64.b64encode(img_encoded).decode('utf-8')
         # ret, jpeg = cv2.imencode('.jpg', black_image)
-        image_64_encode = base64.b64encode(black_image)
-        return (black_image)
+        # image_64_encode = base64.b64encode(black_image)
+        return (img_base64)
         # cap.release()

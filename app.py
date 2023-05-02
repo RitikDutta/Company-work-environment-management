@@ -99,22 +99,32 @@ def process_image():
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # abc = np.frombuffer(base64.b64decode(next(lp.get_pose(frame))))
     current_time = int(time.time())
-    if (current_time % 5 == 0):
-        # time.sleep(1)
-        abc = (lp.get_pose(frame))
-    elif abc != None:
-        abc = frame
+    print(frame.shape)
+    print("-"*40)
+    try:
+        if (current_time % 7 == 0):
+            abc = (lp.get_pose(frame))
+            img_data = base64.b64decode(abc)
+            img_np = np.frombuffer(img_data, np.uint8)
+            abc = cv2.imdecode(img_np, cv2.IMREAD_COLOR)
+
+            x, y, w, h = 110,110,150,150
+            gray = cv2.rectangle(abc, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            _, img_encoded = cv2.imencode('.jpg', gray)
+            img_base64 = base64.b64encode(img_encoded).decode('utf-8')
+            return jsonify({'image': f'data:image/jpeg;base64,{img_base64}'})
+            time.sleep(1)
+        else:
+            return "200"
+    except (RuntimeError, ValueError) as e:
+        print(e)
+        return "200"
 
     # print("abc: ", type(abc))
     # print(abc.shape)
-    print("gray: ", type(gray))
-    print(gray.shape)
+    # print("gray: ", type(gray))
+    # print(gray.shape)
 
-    x, y, w, h = 110,110,150,150
-    gray = cv2.rectangle(abc, (x, y), (x+w, y+h), (0, 255, 0), 2)
-    _, img_encoded = cv2.imencode('.jpg', gray)
-    img_base64 = base64.b64encode(img_encoded).decode('utf-8')
-    return jsonify({'image': f'data:image/jpeg;base64,{img_base64}'})
 
 
 

@@ -21,7 +21,7 @@ class Prediction:
         self.convertor = Converter()
         self.facenet = FaceNet()
         self.face_embeddings = np.load("models/faces_embeddings.npz")
-        
+        self.class_labels = {0: 'away', 1: 'phone', 2: 'working'}
         # Load the model
         self.model = pickle.load(open("models/xgb_pose.pkl", 'rb'))
         # self.model = load_model('models/pose.h5')
@@ -53,8 +53,6 @@ class Prediction:
             x = x.apply(pd.to_numeric, errors='coerce', downcast='float')
         print(x.shape)
 
-        class_labels = {0: 'away', 1: 'phone', 2: 'working'}
-
         d = ["{}{}".format(s, i) for i in range(1, 34) for s in ["x", "y", "z", "visibility"]]        
         x.columns = d
         # _ = [x.drop([f'x{i}', f'y{i}', f'z{i}', f'visibility{i}'], axis=1, inplace=True) for i in range(24, 34)]
@@ -66,14 +64,14 @@ class Prediction:
         class_index = np.argmax(prediction)
     
         # Look up the class label in the dictionary
-        # class_label = class_labels[class_index]
+        # class_label = self.class_labels[class_index]
     
         # Print the class label
     #     print("Class label:", class_label)
 
         # return str(prediction[0])
         print(prediction)
-        return str(class_labels[prediction[0]])
+        return str(self.class_labels[prediction[0]])
         # return str(np.argmax(prediction))
         # if np.argmax(prediction) == 0:
         #     return("away")
@@ -89,3 +87,6 @@ class Prediction:
         final_name = self.encoder.inverse_transform(face_name)[0]
         return final_name
 
+    def predict_df(self, landmark):
+        prediction = self.model.predict(landmark)
+        return str(self.class_labels[prediction[0]])

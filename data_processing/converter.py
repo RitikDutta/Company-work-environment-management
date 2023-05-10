@@ -5,7 +5,9 @@ from mtcnn.mtcnn import MTCNN
 from keras_facenet import FaceNet
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
-
+import base64
+import cv2
+import mediapipe as mp
 
 class Converter:
     """
@@ -128,10 +130,55 @@ class Converter:
                 return df
             except Exception as e:
                 raise e
-    def get_embedding(self, face_img):
-        face_img = face_img.astype('float32')
-        face_img = np.expand_dims(face_img, axis=0)
-        yhat = self.embedder.embeddings(face_img)
+
+
+    def convert_list_to_dataframe(self, landmarks):
+        lst = landmarks[0][0]
+        col_names = [f"{k}{i+1}" for i in range(len(lst)) for k in lst[i].keys()]
+        values = [v for d in lst for v in d.values()]
+        converted_dataframe = pd.DataFrame([values], columns=col_names)
+        return converted_dataframe
+
+    def convert_tuple_list_to_dataframe(self, landmarks):
+        data = {}
+        for i, landmark in enumerate(landmarks):
+            data[f'x{i+1}'] = landmark[0]
+            data[f'y{i+1}'] = landmark[1]
+            data[f'z{i+1}'] = landmark[2]
+            data[f'visibility{i+1}'] = landmark[3]
+        converted_dataframe = pd.DataFrame(data, index=[0])
+        print(converted_dataframe)
+        return converted_dataframe
+
+    def convert_json_to_face_image(self, data):
+
+        img_base64 = data['image']
+        img = base64.b64decode(img_base64.split(',')[1])
+        npimg = np.frombuffer(img, np.uint8)
+        face_image = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
+        return face_image
+
+    def get_landmarks(self, image):
+        print(type(image))
+        # image = cv2.imread(image)
+        pose = mp.solutions.pose.Pose()
+        # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        results = pose.process(image)
+
+        landmarks = []
+        if results.pose_landmarks:
+            for landmark in results.pose_landmarks.landmark:
+                x = landmark.x
+                y = landmark.y
+                z = landmark.z
+                landmarks.append((x, y, z))
+        print(landmarks)
+        return landmarks
+
+    def get_embedding(self, image):
+        image = image.astype('float32')
+        image = np.expand_dims(image, axis=0)
+        yhat = self.embedder.embeddings(image)
         return yhat[0]
 
 

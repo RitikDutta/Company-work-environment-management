@@ -2,78 +2,19 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script type="text/javascript"
-  src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-
-<!-- mediapipe -->
-  <meta charset="utf-8">
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
-  <style type="text/css">
-    body {
-      overflow: hidden;
-    }
-  </style>
-
-  <title></title>
 </head>
-<body onload="update_values();">
 
+<body>
   <div class="container">
     <video class="input_video" style="display: none;"></video>
-    <canvas class="output_canvas" width="640px" height="480px"></canvas>
-    <div class="landmark-grid-container"></div>
+    <canvas class="output_canvas" width="1280px" height="720px"></canvas>
   </div>
 
-
-<div id="yourDiv">
-  <h1>
-      <span id="result">?</span>
-  </h1>
-</div>
-
-
-<script> 
-   var username ='{{ prediction_result }}'
-   console.log(username)
-
-</script>
-
-<script type="text/javascript">
-  var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-</script>
-<script type="text/javascript">
-var intervalID = setInterval(update_values,1000);
-
-  function update_values() {
-        $.getJSON($SCRIPT_ROOT + '/_stuff_face',
-               
-      function(data) {
-        $('#result').text(data.result);
-        console.log(data)
-      });
-      
-    };
-     
-    
-    function stopTextColor() {
-      clearInterval(intervalID);
-    }
-    
-</script>
-
-
-
-<!-- mediapipe -->
-<div class="container">
-    <video class="input_video"></video>
-    <canvas class="output_canvas" width="640px" height="480px"></canvas>
-</div>
-
-<script type="module">
+  <script type="module">
 const videoElement = document.getElementsByClassName('input_video')[0];
 const canvasElement = document.getElementsByClassName('output_canvas')[0];
 const canvasCtx = canvasElement.getContext('2d');
@@ -81,26 +22,8 @@ const canvasCtx = canvasElement.getContext('2d');
 function onResults(results) {
   canvasCtx.save();
   canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-  // shows real video
   canvasCtx.drawImage(
       results.image, 0, 0, canvasElement.width, canvasElement.height);
-  const imgData = canvasElement.toDataURL();
-  
-  // Send the image data to the backend
-  fetch('/process_image', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({image: imgData})
-  })
-  .then(response => response.json())
-  .then(data => {
-    // Handle the response data
-  })
-  .catch(error => {
-    console.error(error);
-  });
   if (results.multiFaceLandmarks) {
     for (const landmarks of results.multiFaceLandmarks) {
       drawConnectors(canvasCtx, landmarks, FACEMESH_TESSELATION,
@@ -116,7 +39,6 @@ function onResults(results) {
     }
   }
   canvasCtx.restore();
-
 }
 
 const faceMesh = new FaceMesh({locateFile: (file) => {
@@ -134,11 +56,10 @@ const camera = new Camera(videoElement, {
   onFrame: async () => {
     await faceMesh.send({image: videoElement});
   },
-  width: 640,
-  height: 480
+  width: 1280,
+  height: 720
 });
 camera.start();
 </script>
-<!-- mediapipe ends -->
 </body>
 </html>

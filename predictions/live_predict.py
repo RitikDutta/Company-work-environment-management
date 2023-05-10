@@ -11,7 +11,7 @@ import pickle
 import cv2
 import cv2 as cv
 from mtcnn.mtcnn import MTCNN
-
+from data_processing.converter import Converter
 import mediapipe as mp
 import numpy as np
 from database.data_base_handler import database_handler
@@ -32,6 +32,7 @@ class LivePredict:
         self.detector = MTCNN()
         self.mode=mode
         self.source = 0
+        self.converter = Converter()
         # self.cap = cv2.VideoCapture(self.source)
         # self.success, self.img = self.cap.read()
         # self.cap.release()
@@ -44,7 +45,7 @@ class LivePredict:
         self.mp_pose = mp.solutions.pose
         self.pose =  self.mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5, model_complexity=2)
         self.time_gap = 7
-        self.db_handler = database_handler()
+        # self.db_handler = database_handler()
 
     def get_available_cameras(self):
         available_sources = 0
@@ -53,7 +54,7 @@ class LivePredict:
             if cap.isOpened():
                 available_sources = i
                 cap.release()
-        return available_sources
+        return 0
 
     def live_predict_pose(self, image):
         """
@@ -291,3 +292,62 @@ class LivePredict:
         # image_64_encode = base64.b64encode(black_image)
         return (img_base64)
         # cap.release()
+
+
+    def get_face(self, img, detection_model="haar"):
+        flag = False
+        image = img
+        current_time = int(time.time())
+        if (current_time % self.time_gap == 0 and not flag and image is not None):
+            # print(image.shape)
+            rgb_img = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+            gray_img = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+            try:
+                if detection_model == "mtcnn":
+                    self.x,self.y,self.w,self.h = self.detector.detect_faces(rgb_img)[0]['box']
+                    self.time_gap = 7
+                elif detection_model == "haar":
+                    faces = self.haarcascade.detectMultiScale(gray_img, 1.3, 5)
+                    for x,y,w,h in faces:
+                        self.x,self.y,self.w,self.h=x,y,w,h
+                    self.time_gap = 1
+                img = rgb_img[self.y:self.y+self.h, self.x:self.x+self.w]
+                img =  cv.resize(img, (160, 160))
+                img = np.expand_dims(img, axis=0)
+                    
+                self.final_name = self.prediction.face_predict(img)
+                print(self.final_name)
+            except IndexError:
+                print("no face")
+                self.final_name = "No Face"
+        elif current_time % self.time_gap != 0:
+            flag = False
+        black_image = np.zeros((image.shape[0], image.shape[1], 3), dtype=np.uint8)
+        black_image[:]=(255,255,255)                
+        print(self.final_name)
+        # time.sleep(1)
+        img_base64 = base64.b64encode(img).decode('utf-8')
+
+        return (self.final_name)
+
+
+
+    def get_both(self, landmark, image, detection_model="haar"):
+        # FACE
+        prediction_face = self.get_face(image)
+
+
+        
+        # POSE
+        # pose_landmaks = self.converter.get_landmarks(image)
+        # pose_dict = self.converter.convert_tuple_list_to_dataframe(pose_landmaks)
+        # prediction_pose = self.prediction.predict_df()
+        # print("PREDICTION ", prediction_pose)
+        landmark_dataframe = self.converter.convert_list_to_dataframe(landmark)
+        prediction_pose = self.prediction.predict_df(landmark_dataframe)
+
+        return f"{prediction_face} + {prediction_pose}"
+
+
+
+

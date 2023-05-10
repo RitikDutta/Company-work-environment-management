@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
-from flask import Flask, render_template, Response, jsonify, request
+from flask import Flask, render_template, Response, jsonify, request, redirect, url_for, session
 from predictions.live_predict import LivePredict
+from predictions.predict_landmarks import Prediction
 from data_processing.converter import Converter
 from database.database_operations import CassandraCRUD
 import pandas as pd
@@ -9,10 +10,13 @@ import pandas as pd
 # from camera.camera import VideoCamera
 import time
 import base64
+from data_processing.converter import Converter
 
 application = Flask(__name__)
 
 app = application
+app.secret_key = "super secret key"
+
 # socketio = SocketIO(app)
 
 
@@ -82,86 +86,121 @@ def video_feed_both():
 def video():
     return render_template('video_feed.html')
 
+lp = LivePredict()
 @app.route('/stream')
 def stream():
+    my_var_face = session.get('my_var_face', None)
+    # print(my_var_face *10) 
     return render_template('stream.html')
 
-lp = LivePredict()
 
 @app.route('/process_image', methods=['POST'])
 def process_image():
-    # lp = LivePredict()
     data = request.json
-    img_base64 = data['image']
-    img = base64.b64decode(img_base64.split(',')[1])
-    npimg = np.frombuffer(img, np.uint8)
-    frame = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    # abc = np.frombuffer(base64.b64decode(next(lp.get_pose(frame))))
-    current_time = int(time.time())
-    print(frame.shape)
-    print("-"*40)
+    face_image = converter.convert_json_to_face_image(data)
+    # cv2.imwrite('received_image.jpg', face_image)
+    # cv2.imshow('Received Image', face_image)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+
+    # print(face_image.shape)
+    # print(face_image)
     try:
-        if (current_time % 7 == 0):
-            abc = (lp.get_pose(frame))
-            img_data = base64.b64decode(abc)
-            img_np = np.frombuffer(img_data, np.uint8)
-            abc = cv2.imdecode(img_np, cv2.IMREAD_COLOR)
+        prediction_face = (lp.get_both(face_image))
+    except:
+        prediction_face = "NONE"
 
-            x, y, w, h = 110,110,150,150
-            gray = cv2.rectangle(abc, (x, y), (x+w, y+h), (0, 255, 0), 2)
-            _, img_encoded = cv2.imencode('.jpg', gray)
-            img_base64 = base64.b64encode(img_encoded).decode('utf-8')
-            return jsonify({'image': f'data:image/jpeg;base64,{img_base64}'})
-            time.sleep(4)
-        else:
-            return "200"
-    except (RuntimeError, ValueError) as e:
-        print(e)
-        return "200"
+    session['my_var_face'] = prediction_face
+    return redirect(url_for('stream'))
 
-    # print("abc: ", type(abc))
-    # print(abc.shape)
-    # print("gray: ", type(gray))
-    # print(gray.shape)
+
+@app.route('/_stuff_face', methods = ['GET'])
+def stuff_face():
+    my_var_face = session.get('my_var_face', None)
+    return jsonify(result=my_var_face)
 
 
 
 
-# @app.route('/camera',methods=['POST'])
-# def camera():
-#     cap=cv2.VideoCapture(0)
-#     while True:
-#         ret,img=cap.read()
-#         img=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-#         cv2.imwrite("static/cam.png",img)
 
-#         # return render_template("camera.html",result=)
-#         time.sleep(0.1)
-#         return json.dumps({'status': 'OK', 'result': "static/cam.png"})
-#         if cv2.waitKey(0) & 0xFF ==ord('q'):
-#             break
-#     cap.release()
-#     # file="/home/ashish/Downloads/THOUGHT.png"
-#     # with open(file,'rb') as file:
-#     #     image=base64.encodebytes(file.read())
-#     #     print(type(image))
-#     # return json.dumps({'status': 'OK', 'user': user, 'pass': password});
-#     return json.dumps({'status': 'OK', 'result': "static/cam.png"});
+converter = Converter()
+pdn = Prediction()
+@app.route('/media')
+def media():
+    # my_var = session.get('my_var', None)
+    return render_template('media.html')
 
-# def gen(camera):
-#     while True:
-#         data= camera.get_frame()
 
-#         frame=data[0]
-#         yield (b'--frame\r\n'
-#                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+@app.route('/mp', methods=['POST'])
+def process_landmarks():
+  data = request.json
+  landmarks = data['landmarks']
+  landmarks_dataframe = converter.convert_list_to_dataframe(landmarks)
+  prediction = pdn.predict_df(landmarks_dataframe)
+  print(prediction)
+  session['my_var'] = prediction
+  return redirect(url_for('media'))
 
-# @app.route('/video_feed')
-# def video_feed():
-#     return Response(gen(VideoCamera()), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+@app.route('/_stuff', methods = ['GET'])
+def stuff():
+    my_var = session.get('my_var', None)
+    return jsonify(result=my_var)
+
+@app.route('/combined')
+def combined():
+    my_var = session.get('my_var', None)
+    my_var_face = session.get('my_var_face', None)
+    print("both: {my_var} + {my_var_face}")
+    return render_template('combined.html')
+
+
+
+
+@app.route('/both')
+def stream2():
+    return render_template('both.html')
+
+
+@app.route('/process_image2', methods=['POST'])
+def process_image2():
+    data = request.json
+    # landmarks = data['landmarks']
+    # try:
+    #     landmarks_dataframe = converter.convert_list_to_dataframe(landmarks)
+    #     prediction = pdn.predict_df(landmarks_dataframe)
+    # except TypeError as e:
+    #     print(e)
+    #     prediction = "NONE POSE"
+    # print(prediction)
+
+
+    # time.sleep(1)
+
+
+
+
+    face_image = converter.convert_json_to_face_image(data)
+    # cv2.imwrite('received_image.jpg', face_image)
+    # print(face_image)
+
+    prediction = lp.get_both(data['landmarks'], face_image)
+
+    print(prediction)
+    
+    return "200"
+
+
+
+
+
+
+
+
+
 
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=8080)
+    app.run(debug=True, host="0.0.0.0", port=8080)

@@ -165,18 +165,19 @@ def both():
 
 @app.route('/process_image2', methods=['POST'])
 def process_image2():
-    data = request.json
-    face_image = converter.convert_json_to_face_image(data) 
-    if data['slider_state'] == True:
-        detection_model="haar"
-    elif data['slider_state'] == False:
-        detection_model = "mtcnn"
+    if time.time()%5 == 0:
+        data = request.json
+        face_image = converter.convert_json_to_face_image(data) 
+        if data['slider_state'] == True:
+            detection_model="haar"
+        elif data['slider_state'] == False:
+            detection_model = "mtcnn"
 
-    prediction = lp.get_both(data['landmarks'], face_image, detection_model=detection_model)
-    print(prediction)
-    
-    print(data['slider_state'])
-    session['my_var_both'] = prediction
+        prediction = lp.get_both(data['landmarks'], face_image, detection_model=detection_model)
+        print(prediction)
+        
+        print(data['slider_state'])
+        session['my_var_both'] = prediction
     return redirect(url_for('both'))
 
 @app.route('/_stuff_both', methods = ['GET'])

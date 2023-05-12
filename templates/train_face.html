@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Collect Face Images for Training</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;1,300&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 600px;
+      margin: 0 auto;
+      padding-top: 50px;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    form {
+      background-color: #fff;
+      border-radius: 5px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+    input[type="text"], input[type="file"], input[type="submit"] {
+      display: block;
+      margin: 0 auto;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      padding: 10px;
+      border: none;
+      width: 100%;
+      max-width: 500px;
+      box-sizing: border-box;
+      font-size: 16px;
+      color: #555;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background-color: #fff;
+    }
+    input[type="submit"] {
+      background-color: #4CAF50;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: none;
+      transition: background-color 0.2s ease;
+    }
+    input[type="submit"]:hover {
+      background-color: #3e8e41;
+    }
+    p {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 0;
+    }
+    .notice b{
+      color: lightcoral;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Collect Face Images for Training</h1>
+
+      <h1>Face Image Collection</h1>
+      <form id="myForm">
+        <div class="form-group">
+          <label for="imageInput">Select Face Image:</label>
+          <input type="file" id="imageInput" name="images" multiple required accept="image/*">
+        </div>
+        <div class="form-group">
+          <label for="textInput">Enter Person's Name:</label>
+          <input type="text" id="textInput" name="personName" required>
+        </div>
+        <div class="form-group">
+          <input type="submit" value="Submit">
+        </div>
+      </form>
+
+    <p>Tip: Take a picture of the person facing the camera, with good lighting and no obstructions to the face.</p>
+  </div>
+
+
+<div class="notice">
+  <p style="padding-right: 10%; padding-left: 10%; text-align: center;">
+    We take your data privacy and security very seriously. Please note that <b>the image you submit</b> will not be saved in our databases. Instead, only the mathematical representation of your facial data will be kept for model training purposes. This data cannot be used to recreate the original face and is not shared with anyone. We are committed to ensuring the confidentiality and security of your data at all times.
+  </p>
+</div>
+
+
+    <script>
+      document.getElementById('myForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const fileInput = document.getElementById('imageInput');
+        const files = fileInput.files;
+        const textInput = document.getElementById('textInput').value;
+        const formData = new FormData();
+
+        for (let i = 0; i < files.length; i++) {
+          formData.append('images', files[i]);
+        }
+        
+        formData.append('text', textInput);
+
+        fetch('/process_train', {
+          method: 'POST',
+          body: formData
+        })
+          .then(response => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              throw new Error('Error occurred during data processing.');
+            }
+          })
+          .then(data => {
+            console.log(data);
+          })
+          .catch(error => {
+            console.error(error);
+          });
+      });
+    </script>
+  </body>
+</html>

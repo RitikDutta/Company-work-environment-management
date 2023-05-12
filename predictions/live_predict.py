@@ -45,7 +45,7 @@ class LivePredict:
         self.mp_pose = mp.solutions.pose
         self.pose =  self.mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5, model_complexity=2)
         self.time_gap = 7
-        # self.db_handler = database_handler()
+        self.db_handler = database_handler()
 
     def get_available_cameras(self):
         available_sources = 0
@@ -334,18 +334,20 @@ class LivePredict:
 
     def get_both(self, landmark, image, detection_model="haar"):
         # FACE
-        prediction_face = self.get_face(image)
+        prediction_face = self.get_face(image, detection_model=detection_model)
 
-
-        
         # POSE
-        # pose_landmaks = self.converter.get_landmarks(image)
-        # pose_dict = self.converter.convert_tuple_list_to_dataframe(pose_landmaks)
-        # prediction_pose = self.prediction.predict_df()
-        # print("PREDICTION ", prediction_pose)
-        landmark_dataframe = self.converter.convert_list_to_dataframe(landmark)
-        prediction_pose = self.prediction.predict_df(landmark_dataframe)
+        try:
+            landmark_dataframe = self.converter.convert_list_to_dataframe(landmark)
+            prediction_pose = self.prediction.predict_df(landmark_dataframe)
+        except TypeError as e:
+            print("No Pose Detected with ", e)
+            prediction_pose = "No Pose"
 
+
+        if prediction_face != '' and prediction_pose != '' and prediction_face != "No Face" and prediction_pose != "No Pose":
+            print("X"*50)
+            # self.db_handler.df_handle(prediction_pose, prediction_face)
         return f"{prediction_face} + {prediction_pose}"
 
 

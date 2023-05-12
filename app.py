@@ -159,44 +159,47 @@ def combined():
 
 
 @app.route('/both')
-def stream2():
+def both():
     return render_template('both.html')
 
 
 @app.route('/process_image2', methods=['POST'])
 def process_image2():
     data = request.json
-    # landmarks = data['landmarks']
-    # try:
-    #     landmarks_dataframe = converter.convert_list_to_dataframe(landmarks)
-    #     prediction = pdn.predict_df(landmarks_dataframe)
-    # except TypeError as e:
-    #     print(e)
-    #     prediction = "NONE POSE"
-    # print(prediction)
+    face_image = converter.convert_json_to_face_image(data) 
+    if data['slider_state'] == True:
+        detection_model="haar"
+    elif data['slider_state'] == False:
+        detection_model = "mtcnn"
 
-
-    # time.sleep(1)
-
-
-
-
-    face_image = converter.convert_json_to_face_image(data)
-    # cv2.imwrite('received_image.jpg', face_image)
-    # print(face_image)
-
-    prediction = lp.get_both(data['landmarks'], face_image)
-
+    prediction = lp.get_both(data['landmarks'], face_image, detection_model=detection_model)
     print(prediction)
-    
-    return "200"
+    print(data['slider_state'])
+    session['my_var_both'] = prediction
+    return redirect(url_for('both'))
+
+@app.route('/_stuff_both', methods = ['GET'])
+def stuff_both():
+    my_var_both = session.get('my_var_both', None)
+    return jsonify(result=my_var_both)
 
 
 
 
+@app.route('/train')
+def train():
+    return render_template('train_face.html')
 
 
-
+@app.route('/process_train', methods=['POST'])
+def process_train():
+    files = request.files.getlist('images')
+    text = request.form['text']
+    for file in files:
+        image = cv2.imdecode(np.frombuffer(file.read(), np.uint8), cv2.IMREAD_COLOR)
+        print('Image shape:', image.shape)
+    print(text)
+    return jsonify({'message': 'Images processed successfully.'})
 
 
 

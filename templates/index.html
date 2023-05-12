@@ -1,10 +1,85 @@
-<html>
-  <head>
-    <title>Video Stream</title>
-  </head>
-  <body>
-    <h1>HELLO There :)</h1>
-    <h1>Welcome to CWEM_</h1>
-    
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Productivity Monitoring System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333333;
+            font-size: 32px;
+            margin-bottom: 24px;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 24px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            color: #ffffff;
+            background-color: #007bff;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        .about-container {
+            margin-top: 48px;
+            max-width: 600px;
+            text-align: center;
+            color: #666666;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Employee Productivity Monitoring System</h1>
+
+    <div class="button-container">
+        <a class="button" href="/get-started">Get Started</a>
+        <a class="button" href="/train-your-face">Train Your Face</a>
+    </div>
+
+    <div class="about-container">
+        <p>About the Project:</p>
+        <p>Your project description goes here. Explain the purpose, features, and benefits of the system. Highlight the
+            use of facial recognition, activity tracking, and data privacy measures.</p>
+    </div>
+
+    <script>
+        document.getElementById("get-started").addEventListener("click", function () {
+            // Handle "Get Started" button click event
+            // Add your custom logic here
+        });
+
+        document.getElementById("train-your-face").addEventListener("click", function () {
+            // Handle "Train Your Face" button click event
+            // Add your custom logic here
+        });
+    </script>
+</body>
+
 </html>

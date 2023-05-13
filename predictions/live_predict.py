@@ -330,11 +330,39 @@ class LivePredict:
 
         return (self.final_name)
 
+    def get_face_web(self, img, detection_model="haar"):
+        image = img
+        if image is not None:
+            # print(image.shape)
+            rgb_img = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+            gray_img = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+            try:
+                if detection_model == "mtcnn":
+                    self.x,self.y,self.w,self.h = self.detector.detect_faces(rgb_img)[0]['box']
+                elif detection_model == "haar":
+                    faces = self.haarcascade.detectMultiScale(gray_img, 1.3, 5)
+                    for x,y,w,h in faces:
+                        self.x,self.y,self.w,self.h=x,y,w,h
+                img = rgb_img[self.y:self.y+self.h, self.x:self.x+self.w]
+                img =  cv.resize(img, (160, 160))
+                img = np.expand_dims(img, axis=0)
+                    
+                self.final_name = self.prediction.face_predict(img)
+                print(self.final_name)
+            except IndexError:
+                print("no face")
+                self.final_name = "No Face"
+        black_image = np.zeros((image.shape[0], image.shape[1], 3), dtype=np.uint8)
+        black_image[:]=(255,255,255)                
+        print(self.final_name)
+        img_base64 = base64.b64encode(img).decode('utf-8')
+
+        return (self.final_name)
 
 
     def get_both(self, landmark, image, detection_model="haar"):
         # FACE
-        prediction_face = self.get_face(image, detection_model=detection_model)
+        prediction_face = self.get_face_web(image, detection_model=detection_model)
 
         # POSE
         try:

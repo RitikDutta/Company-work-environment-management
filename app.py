@@ -165,20 +165,29 @@ def both():
 
 @app.route('/process_image2', methods=['POST'])
 def process_image2():
-    if time.time()%5 == 0:
-        data = request.json
-        face_image = converter.convert_json_to_face_image(data) 
-        if data['slider_state'] == True:
-            detection_model="haar"
-        elif data['slider_state'] == False:
-            detection_model = "mtcnn"
+    # time.sleep(3)
+    try:
+        if time.time()%5 > 4:
+            data = request.json
+            face_image = converter.convert_json_to_face_image(data) 
+            if data['slider_state'] == True:
+                detection_model="haar"
+            elif data['slider_state'] == False:
+                detection_model = "mtcnn"
 
-        prediction = lp.get_both(data['landmarks'], face_image, detection_model=detection_model)
-        print(prediction)
-        
-        print(data['slider_state'])
-        session['my_var_both'] = prediction
-    return redirect(url_for('both'))
+            prediction = lp.get_both(data['landmarks'], face_image, detection_model=detection_model)
+            print(prediction)
+            
+            print(data['slider_state'])
+            session['my_var_both'] = prediction
+            return redirect(url_for('both'))
+    except TypeError as e:
+        print("rest state")
+        return redirect(url_for('both'))
+    finally:
+        return "200"
+
+
 
 @app.route('/_stuff_both', methods = ['GET'])
 def stuff_both():
@@ -186,6 +195,10 @@ def stuff_both():
     return jsonify(result=my_var_both)
 
 
+@app.route('/get_time')
+def get_time():
+    my_var_both = session.get('my_var_both', None)
+    return {'time': my_var_both}
 
 
 @app.route('/train')

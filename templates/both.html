@@ -25,6 +25,25 @@
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils_3d/control_utils_3d.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+  <script>
+      $(document).ready(function() {
+          // Function to update the time
+          function updateTime() {
+              $.ajax({
+                  url: '/get_time',
+                  success: function(data) {
+                      $('#time').text(data.time);
+                  }
+              });
+          }
+
+          // Update the time initially
+          updateTime();
+
+          // Update the time every second
+          setInterval(updateTime, 1000);
+      });
+  </script>
 
 
 
@@ -237,6 +256,7 @@ var intervalID = setInterval(update_values,1000);
     <video class="input_video" style="display: none; padding-left: 100px;"></video>
     <canvas class="output_canvas0" width="640px" height="480px" style="display: none;"></canvas>
 </div>
+    <p id="time"></p>
 
 <div id="yourDiv" style="text-align: center;">
   <h1>

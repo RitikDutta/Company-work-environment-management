@@ -14,7 +14,6 @@ executing==1.2.0
 eventlet==0.33.3
 Flask==2.2.3
 flatbuffers==23.3.3
-flask_socketio==5.8.0
 fonttools==4.39.3
 gast==0.4.0
 geomet==0.2.1.post1

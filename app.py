@@ -197,8 +197,8 @@ def stuff_both():
 
 @app.route('/get_time')
 def get_time():
-    # my_var_both = session.get('my_var_both', None)
-    my_var_both = time.strftime('%H:%M:%S')
+    my_var_both = session.get('my_var_both', None)
+    # my_var_both = time.strftime('%H:%M:%S')
 
     return {'time': my_var_both}
 

@@ -1,518 +1,355 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script type="text/javascript"
-  src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-
-<!-- mediapipe -->
-  <meta charset="utf-8">
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
-
-
-
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-  <script type="text/javascript"
-  src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-  <meta charset="utf-8">
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils_3d/control_utils_3d.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
-  <script>
-      $(document).ready(function() {
-          // Function to update the time
-          function updateTime() {
-              $.ajax({
-                  url: '/get_time',
-                  success: function(data) {
-                      $('#time').text(data.time);
-                  }
-              });
-          }
-
-          // Update the time initially
-          updateTime();
-
-          // Update the time every second
-          setInterval(updateTime, 1000);
-      });
-  </script>
-
-
-
-
-
-
-
-  <style type="text/css">
-
-
-    iframe {
-      width: 50%;
-      height: 80vh;
-      float: left;
-      border: none;
-    }
-
-    .container{
-      display: flex;
-      align-items: center;
-      justify-content: space-evenly;
-    }
-
-
-.toggle-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.toggle-container p{
-  position: absolute;
-  margin-top: 65px;
-  margin-left: 25%;
-  margin-right: 25%;
-  font-size: 10px;
-  color: #999;
-  text-align: center;
-
-}
-
-.toggle-container .heavy_model{
-  color: #2196F3;
-}
-.toggle-container .light_model{
-  color: #000;
-}
-.toggle {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-}
-
-.toggle input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  transition: 0.4s;
-  border-radius: 34px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
-}
-
-.text1 {
-  position: absolute;
-  top: 50%;
-  right: calc(100% + 10px);
-  transform: translateY(-50%);
-  color: #000;
-  transition: 0.4s;
-  color: #2196F3;
-}
-
-.text2 {
-  position: absolute;
-  top: 50%;
-  left: calc(100% + 10px);
-  transform: translateY(-50%);
-  color: #000;
-  transition: 0.4s;
-}
-
-input:checked + .slider {
-  background-color: #2196F3;
-}
-
-input:checked + .slider:before {
-  transform: translateX(26px);
-}
-
-input:checked + .slider + .text1 {
-  color: #2196F3;
-}
-
-input:not(:checked) + .slider + .text2 {
-  color: #2196F3;
-}
-
-
-.output_canvas, .output_canvas2{
-  border:10px solid #7397da;
-  border-radius:10px;
-  -moz-border-radius:25px;
-  width: 40%;
-}
-
-
-  </style>
-
-  <title></title>
-</head>
-<body onload="update_values();">
-
-
-
-
-
-<div class="toggle-container">
-  <label class="toggle">
-    <input type="checkbox" id="slider">
-    <span class="slider"></span>
-    <span class="text1">MTCNN</span>
-    <span class="text2">Haarcascade</span>
-  </label>
-  <p>Note. Choosing the <span class="light_model" style="color: '#2196F3';">light model</span> may lead to reduced accuracy in low lighting conditions. It is important to consider that the <span class="heavy_model">heavy model</span> may result in slower performance.
-</p>
-</div>
-
-    <script type="text/javascript">
-      const slider = document.getElementById("slider");
-      const text1 = document.querySelector(".text1");
-      const text2 = document.querySelector(".text2");
-      const light_model = document.querySelector(".light_model");
-      const heavy_model = document.querySelector(".heavy_model");
-      slider.addEventListener("change", () => {
-        // console.log("Checkbox state:", slider.checked);
-        if (slider.checked) {
-          text1.style.color = "#000";
-          text2.style.color = "#2196F3";
-          light_model.style.color = "#2196F3";
-          heavy_model.style.color = "#000";
-        } else {
-          text1.style.color = "#2196F3";
-          text2.style.color = "#000";
-          light_model.style.color = "#000";
-          heavy_model.style.color = "#2196F3";
-        }
-      });
-    </script>
-
-<!-- <script> 
-   var username ='{{ prediction_result }}'
-   console.log(username)
-
-</script>
-
-<script type="text/javascript">
-  var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-</script>
-<script type="text/javascript">
-var intervalID = setInterval(update_values,1000);
-
-  function update_values() {
-        $.getJSON($SCRIPT_ROOT + '/_stuff_both',
-               
-      function(data) {
-        $('#result').text(data.result);
-        console.log(data)
-      });
-      
-    };
-     
-    
-    function stopTextColor() {
-      clearInterval(intervalID);
-    }
-    
-</script> -->
-
-<br><br>
-
-<!-- mediapipe -->
-<div class="container" style="">
-    <video class="input_video" style="display: none;"></video>
-    <canvas class="output_canvas" width="640px" height="480px"></canvas>
-    <video class="input_video" style="display: none; padding-left: 100px;"></video>
-    <canvas class="output_canvas2" width="640px" height="480px"></canvas>
-    <div class="landmark-grid-container" style="display: none;"></div>
-<!--     <video class="input_video" style="display: none; padding-left: 100px;"></video>
-    <canvas class="output_canvas0" width="640px" height="480px" style="display: none;"></canvas> -->
-</div>
-
-<h2 id="time" style="text-align: center;"></h2>
-
-<!-- <div id="yourDiv" style="text-align: center;">
-  <h1>
-      <span id="result">?</span>
-  </h1>
-</div> -->
-
-
-<div class="container">
-</div>
-<iframe src="/daily_activity" style="width: 100%;"></iframe> -->
-
-<script type="module">
-let landmarks = [];
-
-
-
-
-const videoElement = document.getElementsByClassName('input_video')[0];
-const canvasElement = document.getElementsByClassName('output_canvas')[0];
-const canvasCtx = canvasElement.getContext('2d');
-
-function onResults(results) {
-
-
-
-  canvasCtx.save();
-  canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-  // shows real video
-  canvasCtx.drawImage(
-      results.image, 0, 0, canvasElement.width, canvasElement.height);
-  
-  if (results.multiFaceLandmarks) {
-    for (const landmarks of results.multiFaceLandmarks) {
-      drawConnectors(canvasCtx, landmarks, FACEMESH_TESSELATION,
-                     {color: '#C0C0C070', lineWidth: 1});
-      drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_EYE, {color: '#FF3030'});
-      drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_EYEBROW, {color: '#FF3030'});
-      drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_IRIS, {color: '#FF3030'});
-      drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_EYE, {color: '#30FF30'});
-      drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_EYEBROW, {color: '#30FF30'});
-      drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_IRIS, {color: '#30FF30'});
-      drawConnectors(canvasCtx, landmarks, FACEMESH_FACE_OVAL, {color: '#E0E0E0'});
-      drawConnectors(canvasCtx, landmarks, FACEMESH_LIPS, {color: '#E0E0E0'});
-    }
-  }
-  canvasCtx.restore();
-
-}
-
-const faceMesh = new FaceMesh({locateFile: (file) => {
-  return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
-}});
-faceMesh.setOptions({
-  maxNumFaces: 1,
-  refineLandmarks: true,
-  minDetectionConfidence: 0.5,
-  minTrackingConfidence: 0.5
-});
-faceMesh.onResults(onResults);
-
-
-
-
-const canvasElement2 = document.getElementsByClassName('output_canvas2')[0];
-const canvasCtx2 = canvasElement2.getContext('2d');
-const landmarkContainer = document.getElementsByClassName('landmark-grid-container')[0];
-const grid = new LandmarkGrid(landmarkContainer);
-
-
-
-function onResults2(results) {
-  landmarks = [];
-  let newLandmarks = [results.poseLandmarks];
-  landmarks.push(newLandmarks);
-
-  if (!results.poseLandmarks) {
-    grid.updateLandmarks([]);
-    return;
-  }
-  // console.log(results.poseLandmarks)
-
-  canvasCtx2.save();
-  canvasCtx2.clearRect(0, 0, canvasElement2.width, canvasElement2.height);
-  // canvasCtx2.drawImage(results.segmentationMask, 0, 0,
-  //                     canvasElement2.width, canvasElement2.height);
-
-  // Only overwrite existing pixels.
-  canvasCtx2.globalCompositeOperation = 'source-in';
-  canvasCtx2.fillStyle = '#00FF00';
-  canvasCtx2.fillRect(0, 0, canvasElement2.width, canvasElement2.height);
-
-  // Only overwrite missing pixels.
-  canvasCtx2.globalCompositeOperation = 'destination-atop';
-  canvasCtx2.drawImage(
-      results.image, 0, 0, canvasElement2.width, canvasElement2.height);
-
-  canvasCtx2.globalCompositeOperation = 'source-over';
-  drawConnectors(canvasCtx2, results.poseLandmarks, POSE_CONNECTIONS,
-                 {color: '#00FF00', lineWidth: 4});
-  drawLandmarks(canvasCtx2, results.poseLandmarks,
-                {color: '#FF0000', lineWidth: 2});
-  canvasCtx2.restore();
-
-  grid.updateLandmarks(results.poseWorldLandmarks);
-}
-
-const pose = new Pose({locateFile: (file) => {
-  return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
-}});
-pose.setOptions({
-  modelComplexity: 1,
-  smoothLandmarks: true,
-  enableSegmentation: true,
-  smoothSegmentation: true,
-  minDetectionConfidence: 0.5,
-  minTrackingConfidence: 0.5
-});
-pose.onResults(onResults2);
-
-
-
-
-
-
-
-
-
-
-
-
-
-// const canvasElement0 = document.getElementsByClassName('output_canvas0')[0];
-// const canvasCtx0 = canvasElement0.getContext('2d');
-const slider = document.getElementById("slider");
-
-  const video = document.createElement('video');
-  const canvas = document.createElement('canvas');
-  const context = canvas.getContext('2d');
-  // navigator.mediaDevices.getUserMedia({ video: true })
-  //           .then((stream) => {
-  //               video.srcObject = stream;
-  //               video.play();
-  //               captureFrame();
-  //           })
-  //           .catch((error) => {
-  //               console.error('Error accessing the camera:', error);
-  //           });
-
-
-function onResults0(results) {
-  canvas.width = 640;
-  canvas.height = 480;
-
-            // Draw the current video frame onto the canvas
-            context.drawImage(results.image, 0, 0, 640, 480);
-
-            // Convert the canvas image to base64 format
-            const imageData = canvas.toDataURL('image/jpeg');
-
-
-
-
-
-
-
-
-
-  
-
-  
-
-  // const imgData = canvasElement0.toDataURL();
-  const slider_state = slider.checked
-  fetch('/process_image2', {
-    method: 'POST',
-    body: JSON.stringify({landmarks: landmarks, image: imageData, slider_state: slider_state}),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  }).then(response => response.json())
-  .then(data => {
-    // Handle the response data
-  })
-  .catch(error => {
-    console.error(error);
-  });
-
-
-  if (!results.poseLandmarks) {
-    grid.updateLandmarks([]);
-    return;
-  }
-  // console.log(results.poseLandmarks)
-
-  // canvasCtx0.save();
-  // canvasCtx0.clearRect(0, 0, canvasElement0.width, canvasElement0.height);
-  // // canvasCtx0.drawImage(results.segmentationMask, 0, 0,
-  // //                     canvasElement0.width, canvasElement0.height);
-
-
-  // // Only overwrite missing pixels.
-  // canvasCtx0.globalCompositeOperation = 'destination-atop';
-  // canvasCtx0.drawImage(
-  //     results.image, 0, 0, canvasElement0.width, canvasElement0.height);
-}
-
-// const pose0 = new Pose({locateFile: (file) => {
-//   return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
-// }});
-// pose0.setOptions({
-//   modelComplexity: 1,
-//   smoothLandmarks: true,
-//   enableSegmentation: true,
-//   smoothSegmentation: true,
-//   minDetectionConfidence: 0.5,
-//   minTrackingConfidence: 0.5
-// });
-// pose0.onResults(onResults0);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const camera = new Camera(videoElement, {
-  onFrame: async () => {
-    await faceMesh.send({image: videoElement});
-    await pose.send({image: videoElement});
-    await onResults0({image: videoElement});
-
-  },
-  width: 640,
-  height: 480
-});
-camera.start();
-</script>
-
-
-
-
-
-
-
-
-<!-- mediapipe ends -->
-</body>
+   <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <script type="text/javascript"
+         src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+      <!-- mediapipe -->
+      <meta charset="utf-8">
+      <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script type="text/javascript"
+         src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+      <meta charset="utf-8">
+      <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils_3d/control_utils_3d.js" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+      <script>
+         $(document).ready(function() {
+             // Function to update the time
+             function updateTime() {
+                 $.ajax({
+                     url: '/get_time',
+                     success: function(data) {
+                         $('#time').text(data.time);
+                     }
+                 });
+             }
+         
+             // Update the time initially
+             updateTime();
+         
+             // Update the time every second
+             setInterval(updateTime, 1000);
+         });
+      </script>
+      <style type="text/css">
+         iframe {
+         width: 50%;
+         height: 80vh;
+         float: left;
+         border: none;
+         }
+         .container{
+         display: flex;
+         align-items: center;
+         justify-content: space-evenly;
+         }
+         .toggle-container {
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         }
+         .toggle-container p{
+         position: absolute;
+         margin-top: 65px;
+         margin-left: 25%;
+         margin-right: 25%;
+         font-size: 10px;
+         color: #999;
+         text-align: center;
+         }
+         .toggle-container .heavy_model{
+         color: #2196F3;
+         }
+         .toggle-container .light_model{
+         color: #000;
+         }
+         .toggle {
+         position: relative;
+         display: inline-block;
+         width: 60px;
+         height: 34px;
+         }
+         .toggle input {
+         opacity: 0;
+         width: 0;
+         height: 0;
+         }
+         .slider {
+         position: absolute;
+         cursor: pointer;
+         top: 0;
+         left: 0;
+         right: 0;
+         bottom: 0;
+         background-color: #ccc;
+         transition: 0.4s;
+         border-radius: 34px;
+         }
+         .slider:before {
+         position: absolute;
+         content: "";
+         height: 26px;
+         width: 26px;
+         left: 4px;
+         bottom: 4px;
+         background-color: white;
+         transition: 0.4s;
+         border-radius: 50%;
+         }
+         .text1 {
+         position: absolute;
+         top: 50%;
+         right: calc(100% + 10px);
+         transform: translateY(-50%);
+         color: #000;
+         transition: 0.4s;
+         color: #2196F3;
+         }
+         .text2 {
+         position: absolute;
+         top: 50%;
+         left: calc(100% + 10px);
+         transform: translateY(-50%);
+         color: #000;
+         transition: 0.4s;
+         }
+         input:checked + .slider {
+         background-color: #2196F3;
+         }
+         input:checked + .slider:before {
+         transform: translateX(26px);
+         }
+         input:checked + .slider + .text1 {
+         color: #2196F3;
+         }
+         input:not(:checked) + .slider + .text2 {
+         color: #2196F3;
+         }
+         .output_canvas, .output_canvas2{
+         border:10px solid #7397da;
+         border-radius:10px;
+         -moz-border-radius:25px;
+         width: 40%;
+         }
+      </style>
+      <title></title>
+   </head>
+   <body onload="update_values();">
+      <div class="toggle-container">
+         <label class="toggle">
+         <input type="checkbox" id="slider">
+         <span class="slider"></span>
+         <span class="text1">MTCNN</span>
+         <span class="text2">Haarcascade</span>
+         </label>
+         <p>Note. Choosing the <span class="light_model" style="color: '#2196F3';">light model</span> may lead to reduced accuracy in low lighting conditions. It is important to consider that the <span class="heavy_model">heavy model</span> may result in slower performance.</p>
+      </div>
+      <script type="text/javascript">
+         const slider = document.getElementById("slider");
+         const text1 = document.querySelector(".text1");
+         const text2 = document.querySelector(".text2");
+         const light_model = document.querySelector(".light_model");
+         const heavy_model = document.querySelector(".heavy_model");
+         slider.addEventListener("change", () => {
+           // console.log("Checkbox state:", slider.checked);
+           if (slider.checked) {
+             text1.style.color = "#000";
+             text2.style.color = "#2196F3";
+             light_model.style.color = "#2196F3";
+             heavy_model.style.color = "#000";
+           } else {
+             text1.style.color = "#2196F3";
+             text2.style.color = "#000";
+             light_model.style.color = "#000";
+             heavy_model.style.color = "#2196F3";
+           }
+         });
+      </script>
+      <br><br>
+      <!-- mediapipe -->
+      <div class="container" style="">
+         <video class="input_video" style="display: none;"></video>
+         <canvas class="output_canvas" width="640px" height="480px"></canvas>
+         <video class="input_video" style="display: none; padding-left: 100px;"></video>
+         <canvas class="output_canvas2" width="640px" height="480px"></canvas>
+         <div class="landmark-grid-container" style="display: none;"></div>
+      </div>
+      <h2 id="time" style="text-align: center;"></h2>
+      <!-- <div id="yourDiv" style="text-align: center;">
+         <h1>
+             <span id="result">?</span>
+         </h1>
+         </div> -->
+      <div class="container"></div>
+      <iframe src="/daily_activity" style="width: 100%;"></iframe> -->
+      <script type="module">
+         let landmarks = [];
+         
+         
+         
+         
+         const videoElement = document.getElementsByClassName('input_video')[0];
+         const canvasElement = document.getElementsByClassName('output_canvas')[0];
+         const canvasCtx = canvasElement.getContext('2d');
+         
+         function onResults(results) {
+         
+         
+         
+           canvasCtx.save();
+           canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+           // shows real video
+           canvasCtx.drawImage(
+               results.image, 0, 0, canvasElement.width, canvasElement.height);
+           
+           if (results.multiFaceLandmarks) {
+             for (const landmarks of results.multiFaceLandmarks) {
+               drawConnectors(canvasCtx, landmarks, FACEMESH_TESSELATION,
+                              {color: '#C0C0C070', lineWidth: 1});
+               drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_EYE, {color: '#FF3030'});
+               drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_EYEBROW, {color: '#FF3030'});
+               drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_IRIS, {color: '#FF3030'});
+               drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_EYE, {color: '#30FF30'});
+               drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_EYEBROW, {color: '#30FF30'});
+               drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_IRIS, {color: '#30FF30'});
+               drawConnectors(canvasCtx, landmarks, FACEMESH_FACE_OVAL, {color: '#E0E0E0'});
+               drawConnectors(canvasCtx, landmarks, FACEMESH_LIPS, {color: '#E0E0E0'});
+             }
+           }
+           canvasCtx.restore();
+         
+         }
+         
+         const faceMesh = new FaceMesh({locateFile: (file) => {
+           return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+         }});
+         faceMesh.setOptions({
+           maxNumFaces: 1,
+           refineLandmarks: true,
+           minDetectionConfidence: 0.5,
+           minTrackingConfidence: 0.5
+         });
+         faceMesh.onResults(onResults);
+         
+         
+         
+         
+         const canvasElement2 = document.getElementsByClassName('output_canvas2')[0];
+         const canvasCtx2 = canvasElement2.getContext('2d');
+         const landmarkContainer = document.getElementsByClassName('landmark-grid-container')[0];
+         const grid = new LandmarkGrid(landmarkContainer);
+         
+         
+         
+         function onResults2(results) {
+           landmarks = [];
+           let newLandmarks = [results.poseLandmarks];
+           landmarks.push(newLandmarks);
+         
+           if (!results.poseLandmarks) {
+             grid.updateLandmarks([]);
+             return;
+           }
+           // console.log(results.poseLandmarks)
+         
+           canvasCtx2.save();
+           canvasCtx2.clearRect(0, 0, canvasElement2.width, canvasElement2.height);
+           // canvasCtx2.drawImage(results.segmentationMask, 0, 0,
+           //                     canvasElement2.width, canvasElement2.height);
+         
+           // Only overwrite existing pixels.
+           canvasCtx2.globalCompositeOperation = 'source-in';
+           canvasCtx2.fillStyle = '#00FF00';
+           canvasCtx2.fillRect(0, 0, canvasElement2.width, canvasElement2.height);
+         
+           // Only overwrite missing pixels.
+           canvasCtx2.globalCompositeOperation = 'destination-atop';
+           canvasCtx2.drawImage(
+               results.image, 0, 0, canvasElement2.width, canvasElement2.height);
+         
+           canvasCtx2.globalCompositeOperation = 'source-over';
+           drawConnectors(canvasCtx2, results.poseLandmarks, POSE_CONNECTIONS,
+                          {color: '#00FF00', lineWidth: 4});
+           drawLandmarks(canvasCtx2, results.poseLandmarks,
+                         {color: '#FF0000', lineWidth: 2});
+           canvasCtx2.restore();
+         
+           grid.updateLandmarks(results.poseWorldLandmarks);
+         }
+         
+         const pose = new Pose({locateFile: (file) => {
+           return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+         }});
+         pose.setOptions({
+           modelComplexity: 1,
+           smoothLandmarks: true,
+           enableSegmentation: true,
+           smoothSegmentation: true,
+           minDetectionConfidence: 0.5,
+           minTrackingConfidence: 0.5
+         });
+         pose.onResults(onResults2);
+         
+         
+         
+         
+         const slider = document.getElementById("slider");
+         
+           const video = document.createElement('video');
+           const canvas = document.createElement('canvas');
+           const context = canvas.getContext('2d');
+         
+         function onResults0(results) {
+           canvas.width = 640;
+           canvas.height = 480;
+         
+                     // Draw the current video frame onto the canvas
+                     context.drawImage(results.image, 0, 0, 640, 480);
+         
+                     // Convert the canvas image to base64 format
+                     const imageData = canvas.toDataURL('image/jpeg');
+         
+           
+           const slider_state = slider.checked
+           fetch('/process_image2', {
+             method: 'POST',
+             body: JSON.stringify({landmarks: landmarks, image: imageData, slider_state: slider_state}),
+             headers: {
+               'Content-Type': 'application/json'
+             }
+           }).then(response => response.json())
+           .then(data => {
+             // Handle the response data
+           })
+           .catch(error => {
+             console.error(error);
+           });
+         
+         
+           if (!results.poseLandmarks) {
+             grid.updateLandmarks([]);
+             return;
+           }
+         
+         const camera = new Camera(videoElement, {
+           onFrame: async () => {
+             await faceMesh.send({image: videoElement});
+             await pose.send({image: videoElement});
+             await onResults0({image: videoElement});
+         
+           },
+           width: 640,
+           height: 480
+         });
+         camera.start();
+      </script>
+   </body>
 </html>

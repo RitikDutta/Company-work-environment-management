@@ -6,11 +6,8 @@ from predictions.predict_landmarks import Prediction
 from data_processing.converter import Converter
 from database.database_operations import CassandraCRUD
 import pandas as pd
-# from flask_socketio import SocketIO, emit
-# from camera.camera import VideoCamera
 import time
 import base64
-from data_processing.converter import Converter
 
 application = Flask(__name__)
 

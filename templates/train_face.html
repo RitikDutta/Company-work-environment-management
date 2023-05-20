@@ -108,6 +108,7 @@
         }
         
         formData.append('text', textInput);
+        document.getElementById("myForm").reset();
 
         fetch('/process_train', {
           method: 'POST',
@@ -127,6 +128,7 @@
             console.error(error);
           });
       });
+
     </script>
   </body>
 </html>

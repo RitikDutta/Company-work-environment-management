@@ -236,5 +236,5 @@ def process_train():
 
 
 if __name__ == '__main__':
-    app.run(ssl_context='adhoc', host='0.0.0.0', port=5000)
+    app.run(ssl_context='adhoc', host='0.0.0.0', port=8080)
     # serve(app, host='0.0.0.0', port=5000, url_scheme='https', ssl_context='adhoc')

@@ -6,6 +6,7 @@ from predictions.predict_landmarks import Prediction
 from data_processing.converter import Converter
 from database.database_operations import CassandraCRUD
 import pandas as pd
+import json
 import time
 import base64
 from data_collection.data_collector import Data_collection
@@ -55,24 +56,30 @@ def index():
 def dbo():
     live_predict = LivePredict()
     live_predict.show_both()
+
+@app.route('/daily_activity')
+def daily_activity():
+    return render_template('daily_activity.html')
     
-@app.route("/daily_activity")
+@app.route("/get_daily_activity")
 def show_tables():
     crud = CassandraCRUD("test_key")
     data = crud.get_db("daily_activity")
-    data.set_index(['employee_id'], inplace=True)
-    data.index.name=None
-    return render_template('daily_activity.html',tables=[data.to_html()],
-    titles = ["Daily Activity"])
+    data = data.to_dict(orient='records')
+    data_json = json.dumps(data, default=str)
+    return jsonify(data_json)
 
-@app.route("/total_activity")
+@app.route('/total_activity')
+def total_activity():
+    return render_template('total_activity.html')
+
+@app.route("/get_total_activity")
 def show_tables2():
     crud = CassandraCRUD("test_key")
     data = crud.get_db("total_activity")
-    data.set_index(['employee_id'], inplace=True)
-    data.index.name=None
-    return render_template('total_activity.html',tables=[data.to_html()],
-    titles = ["Total Activity"])
+    data = data.to_dict(orient='records')
+    data_json = json.dumps(data, default=str)
+    return jsonify(data_json)
 
 
 @app.route('/video_feed_both')
@@ -169,9 +176,9 @@ def process_image2():
         if time.time()%5 > 4:
             data = request.json
             face_image = converter.convert_json_to_face_image(data) 
-            if data['slider_state'] == True:
+            if data['slider_state'] == False:
                 detection_model="haar"
-            elif data['slider_state'] == False:
+            elif data['slider_state'] == True:
                 detection_model = "mtcnn"
 
             prediction = lp.get_both(data['landmarks'], face_image, detection_model=detection_model)

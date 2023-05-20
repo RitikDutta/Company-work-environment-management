@@ -175,6 +175,7 @@ class Data_collection:
         sample = []
         encodings = []
         test_y=[]
+        test_samples = []
         sample = image
         sample = cv2.cvtColor(sample, cv2.COLOR_BGR2RGB)
         face = self.detector.detect_faces(sample)
@@ -185,12 +186,9 @@ class Data_collection:
             test_samples.append(sample)
             encodings.append(self.convertor.get_embedding(sample))
             test_y.append(class_name)
-            
-            count +=1
-            flag = True
         else:
             print("face not detected")
-        self.convertor.append_npz_files('models/faces_embeddings.npz', encodings, test_y)
+        self.convertor.append_npz_files('models/faces_embeddings.npz', encodings, test_y, web=True)
 
         test = np.load("models/faces_embeddings.npz")
         print("updated labels", test['labels'])

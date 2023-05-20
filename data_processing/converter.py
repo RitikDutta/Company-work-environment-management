@@ -183,7 +183,7 @@ class Converter:
 
 
 
-    def append_npz_files(self,file_name, features, labels):
+    def append_npz_files(self,file_name, features, labels, web=False):
             try:
                 with np.load(file_name) as data:
                     old_features = data['features']
@@ -193,7 +193,10 @@ class Converter:
             except FileNotFoundError:
                 new_features = features
                 new_labels = labels
-            save_prompt = input("Do You want to updated Face Embeddings? ")
+            if web:
+                save_prompt = 'y'
+            else:
+                save_prompt = input("Do You want to updated Face Embeddings? ")
             if save_prompt == 'y':
                 np.savez_compressed(file_name, features=new_features, labels=new_labels)
             else:

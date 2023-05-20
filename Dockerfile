@@ -20,7 +20,7 @@ COPY . /app
 
 # Set the working directory
 WORKDIR /app
-
+EXPOSE 8080
 # Remove unnecessary packages
 RUN apt-get purge -y --auto-remove build-essential curl && \
     rm -rf /var/lib/apt/lists/* && \

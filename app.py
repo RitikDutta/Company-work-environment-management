@@ -8,8 +8,10 @@ from database.database_operations import CassandraCRUD
 import pandas as pd
 import time
 import base64
-
+from data_collection.data_collector import Data_collection
+from src.train_model import ModelTraining
 application = Flask(__name__)
+# from waitress import serve
 
 app = application
 app.secret_key = "super secret key"
@@ -204,15 +206,22 @@ def get_time():
 def train():
     return render_template('train_face.html')
 
-
+collector = Data_collection("none", "face")
+trainer = ModelTraining()
 @app.route('/process_train', methods=['POST'])
 def process_train():
     files = request.files.getlist('images')
-    text = request.form['text']
+    class_name = request.form['text']
     for file in files:
         image = cv2.imdecode(np.frombuffer(file.read(), np.uint8), cv2.IMREAD_COLOR)
         print('Image shape:', image.shape)
-    print(text)
+        collector.face_collection_web(image, class_name)
+    print("Training Face for ", class_name)
+    trainer.train_face_model(data_directory="models/faces_embeddings.npz",
+                                 model_output_directory="models/faces_embeddings.npz",
+                                 # model_input_directory='models/face_model.h5',
+                                 )
+    print("trained success")
     return jsonify({'message': 'Images processed successfully.'})
 
 
@@ -220,4 +229,5 @@ def process_train():
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=8080)
+    app.run(ssl_context='adhoc', host='0.0.0.0', port=5000)
+    # serve(app, host='0.0.0.0', port=5000, url_scheme='https', ssl_context='adhoc')

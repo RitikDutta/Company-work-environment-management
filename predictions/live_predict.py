@@ -375,7 +375,8 @@ class LivePredict:
 
         if prediction_face != '' and prediction_pose != '' and prediction_face != "No Face" and prediction_pose != "No Pose":
             print("X"*50)
-            # self.db_handler.df_handle(prediction_pose, prediction_face)
+            self.db_handler.df_handle(prediction_pose, prediction_face)
+        
         return f"{prediction_face} + {prediction_pose}"
 
 

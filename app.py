@@ -177,9 +177,9 @@ def process_image2():
             data = request.json
             face_image = converter.convert_json_to_face_image(data) 
             if data['slider_state'] == False:
-                detection_model="haar"
-            elif data['slider_state'] == True:
                 detection_model = "mtcnn"
+            elif data['slider_state'] == True:
+                detection_model="haar"
 
             prediction = lp.get_both(data['landmarks'], face_image, detection_model=detection_model)
             print(prediction)
@@ -236,5 +236,5 @@ def process_train():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, ssl_context='adhoc')
+    app.run(host='0.0.0.0', port=8080)
     # serve(app, host='0.0.0.0', port=5000, url_scheme='https', ssl_context='adhoc')

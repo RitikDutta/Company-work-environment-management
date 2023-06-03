@@ -66,10 +66,10 @@
          text-align: center;
          }
          .toggle-container .heavy_model{
-         color: #2196F3;
+         color: #000;
          }
          .toggle-container .light_model{
-         color: #000;
+         color: #2196F3;
          }
          .toggle {
          position: relative;
@@ -111,14 +111,13 @@
          transform: translateY(-50%);
          color: #000;
          transition: 0.4s;
-         color: #2196F3;
          }
          .text2 {
          position: absolute;
          top: 50%;
          left: calc(100% + 10px);
          transform: translateY(-50%);
-         color: #000;
+         color: #2196F3;
          transition: 0.4s;
          }
          input:checked + .slider {
@@ -128,7 +127,7 @@
          transform: translateX(26px);
          }
          input:checked + .slider + .text1 {
-         color: #2196F3;
+         color: #000;
          }
          input:not(:checked) + .slider + .text2 {
          color: #2196F3;
@@ -145,7 +144,7 @@
    <body onload="update_values();">
       <div class="toggle-container">
          <label class="toggle">
-         <input type="checkbox" id="slider">
+         <input type="checkbox" id="slider" checked>
          <span class="slider"></span>
          <span class="text1">MTCNN</span>
          <span class="text2">Haarcascade</span>
@@ -337,8 +336,8 @@
            if (!results.poseLandmarks) {
              grid.updateLandmarks([]);
              return;
+            }
            }
-         }
          
          const camera = new Camera(videoElement, {
            onFrame: async () => {

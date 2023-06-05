@@ -43,6 +43,8 @@ jobs:
       - name: cloning development branch
         run: |
          git pull origin aws_cicd
+         cd ..
+         ls
          echo SUCCESS
          
       - name: restarting nginx

@@ -27,7 +27,6 @@ jobs:
           
           
   Continuous-Deployment:
-    needs: build-and-push-ecr-image
     runs-on: self-hosted
     steps:
       - name: Checkout

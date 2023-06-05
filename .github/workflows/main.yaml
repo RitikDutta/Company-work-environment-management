@@ -3,7 +3,7 @@ name: AWS Deploy
 on:
   push:
     branches:
-      - main
+      - aws_cicd
 
 jobs:
   deploy:

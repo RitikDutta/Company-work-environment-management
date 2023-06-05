@@ -49,8 +49,8 @@ jobs:
         run: |
          whoami
          df -h
-
-      - name: restarting nginx
+        
+      - name: restarting
       	run: |
       	 sudo systemctl restart nginx
       	 

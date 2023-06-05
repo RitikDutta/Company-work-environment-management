@@ -30,8 +30,31 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+
+      
+      - name: Stop and remove containers if running
+        run: |
+         echo "SUCCESS"
+         ls
+        continue-on-error: true
+         
+      - name: Pull latest images
+        run: |
+         echo "pull msg"
+      
+       
+      - name: Run Docker Image to serve users
         run: |
          ls --ipc="host" --name=cwem -e 'AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}' -e 'AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}' -e 'AWS_REGION=${{ secrets.AWS_REGION }}'  ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
-      - name: logout
+      - name: Clean previous images and containers
         run: |
          logout 

@@ -50,9 +50,7 @@ jobs:
          whoami
          df -h
         
-      - name: restarting
-      	run: |
-      	 sudo systemctl restart nginx
+      
       	 
       - name: loging out ssh
         run: |

@@ -45,6 +45,8 @@ jobs:
         run: |
          echo "SUCCESS"
          whoami
+         ls
+         df -h
         continue-on-error: true
          
       - name: Pull latest images

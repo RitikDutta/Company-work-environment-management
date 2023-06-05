@@ -47,7 +47,7 @@ jobs:
          
       - name: restarting nginx
         run: |
-         sudo systemctl restart nging
+         sudo systemctl restart nginx
          echo SUCCESS
          
       - name: checking storage

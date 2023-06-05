@@ -46,11 +46,8 @@ jobs:
          echo "SUCCESS"
          whoami
          df -h
-        
-        
-      - name: restarting nginx
-      	run: |
-      	 sudo systemctl restart nginx
+        continue-on-error: true
+      - name: 
       - name: loging out
         run: |
          logout

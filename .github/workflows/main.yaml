@@ -47,7 +47,11 @@ jobs:
          whoami
          df -h
         continue-on-error: true
+        
+      - name: Stop and remove containers if running
+        run: |
+         echo success
       
       - name: loging out
         run: |
-         logout
+         exit

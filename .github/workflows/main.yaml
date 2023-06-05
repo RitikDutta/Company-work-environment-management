@@ -47,7 +47,7 @@ jobs:
          whoami
          df -h
         continue-on-error: true
-      - name: 
+      
       - name: loging out
         run: |
          logout

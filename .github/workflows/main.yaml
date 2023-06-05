@@ -44,7 +44,7 @@ jobs:
       - name: Stop and remove containers if running
         run: |
          echo "SUCCESS"
-         ls
+         whoami
         continue-on-error: true
          
       - name: Pull latest images

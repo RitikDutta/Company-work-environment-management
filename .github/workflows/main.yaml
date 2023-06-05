@@ -21,7 +21,7 @@ jobs:
           ssh-username: ${{ secrets.EC2_USERNAME }}
           script: |
             cd /path/to/directory
-            echo "SUCCESS"
+            echo "login SUCCESS"
 
       - name: Logout from EC2 instance
         uses: appleboy/ssh-action@master

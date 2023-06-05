@@ -40,23 +40,21 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
 
-      
-      - name: Stop and remove containers if running
+      - name: cloning a git repo on a development branch
         run: |
-         echo "SUCCESS"
+         git clone -b aws_cicd https://github.com/RitikDutta/Company-work-environment-management.git
+         echo success
+        
+      - name: checking storage
+        run: |
          whoami
-         ls
          df -h
-        continue-on-error: true
-         
-      - name: Pull latest images
+        
+        
+      - name: restarting nginx
+      	run: |
+      	 sudo systemctl restart nginx
+      	 
+      - name: loging out ssh
         run: |
-         echo "pull msg"
-      
-       
-      - name: Run Docker Image to serve users
-        run: |
-         ls --ipc="host" --name=cwem -e 'AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}' -e 'AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}' -e 'AWS_REGION=${{ secrets.AWS_REGION }}'  ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
-      - name: Clean previous images and containers
-        run: |
-         logout 
+         logout

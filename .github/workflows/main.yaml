@@ -42,7 +42,7 @@ jobs:
 
       - name: cloning development branch
         run: |
-         git clone -b aws_cicd https://github.com/RitikDutta/Company-work-environment-management.git
+         git pull origin aws_cicd
          echo SUCCESS
          
       - name: restarting nginx

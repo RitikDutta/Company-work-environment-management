@@ -1,62 +1,29 @@
-name: workflow
+name: SSH Deploy
 
 on:
   push:
     branches:
       - master
-    paths-ignore:
-      - 'README.md'
-
-permissions:
-  id-token: write
-  contents: read
 
 jobs:
-  integration:
-    name: Continuous Integration
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Lint code
-        run: echo "Linting repository"
-
-      - name: Run unit tests
-        run: echo "Running unit tests"
-          
-          
-  Continuous-Deployment:
-    runs-on: self-hosted
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.0
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      - name: SSH to EC2 instance and execute commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: 13.234.30.170
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            ls ..
 
-      - name: cloning development branch
-        script: |
-         git pull origin master
-         echo SUCCESS
-         
-      - name: restarting nginx
-        script: |
-         sudo systemctl restart nginx
-         echo SUCCESS
-         
-      - name: checking storage
-        script: |
-         whoami
-         df -h
-         ls ..
-        continue-on-error: true
-              
-      - name: loging out
-        run: |
-         exit

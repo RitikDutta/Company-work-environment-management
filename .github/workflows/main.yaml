@@ -41,17 +41,17 @@ jobs:
 
 
       - name: cloning development branch
-        run: |
+        script: |
          git pull origin master
          echo SUCCESS
          
       - name: restarting nginx
-        run: |
+        script: |
          sudo systemctl restart nginx
          echo SUCCESS
          
       - name: checking storage
-        run: |
+        script: |
          whoami
          df -h
          ls ..

@@ -6,6 +6,12 @@ on:
       - master
 
 jobs:
+  Continous-Integration:
+    steps:
+      - name: Checking code
+        run: |
+          echo TEST
+            
   deploy:
     runs-on: ubuntu-latest
 

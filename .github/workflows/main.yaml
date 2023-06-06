@@ -54,6 +54,7 @@ jobs:
         run: |
          whoami
          df -h
+         ls ..
         continue-on-error: true
               
       - name: loging out

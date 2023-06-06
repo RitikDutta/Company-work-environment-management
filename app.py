@@ -181,6 +181,8 @@ def process_image2():
             elif data['slider_state'] == True:
                 detection_model="haar"
 
+                abc
+
             prediction = lp.get_both(data['landmarks'], face_image, detection_model=detection_model)
             print(prediction)
             

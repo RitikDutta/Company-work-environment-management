@@ -30,7 +30,7 @@ jobs:
             
   Continous-Deployment:
     runs-on: ubuntu-latest
-
+    needs: Continous-Integration
     steps:
       - name: Checkout code
         uses: actions/checkout@v2

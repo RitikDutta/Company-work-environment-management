@@ -246,7 +246,7 @@ class LivePredict:
             yield (b'--frame\r\n'
                     b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n\r\n')
             cv2.waitKey(1)
-        print(error)
+        # print(error)
         cap.release()
 
     def pose_yield(self, img):

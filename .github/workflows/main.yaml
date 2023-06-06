@@ -26,7 +26,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             ls
-            cd Company work environment management
+            cd Company-work-environment-management
             git pull origin master
             sudo supervisorctl reload
             exit

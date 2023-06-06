@@ -6,7 +6,8 @@ on:
       - master
 
 jobs:
-  Continous_Integration:
+
+  Continous-Integration:
     runs-on: ubuntu-latest
     steps: 
       uses: actions/checkout@v2

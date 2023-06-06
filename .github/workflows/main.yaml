@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Any
+    - name: Setting up environment
       uses: actions/checkout@v2
       with: 
         fetch-depth: 0

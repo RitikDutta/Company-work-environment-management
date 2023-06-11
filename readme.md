@@ -1,7 +1,7 @@
 <h2>Employee Productivity Monitoring System</h2>
 <p>This project aims to use facial recognition technology to monitor employee productivity and track specific activities in the workplace.</p>
 
-![demo GIF](https://i.imgur.com/JpFSOoy.gif)
+![demo GIF](https://i.imgur.com/byI1SLS.gif)
 
 
 <h3>Features</h3>

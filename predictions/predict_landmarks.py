@@ -26,9 +26,9 @@ class Prediction:
         self.model = pickle.load(open("models/xgb_pose.pkl", 'rb'))
         # self.model = load_model('models/pose.h5')
         # Load the face model
-        self.face_model = pickle.load(open("models/face_SVC_model.pkl", 'rb'))
-        self.encoder = LabelEncoder()
-        self.encoder.classes_ = np.load('models/face_encoder.npy')
+        # self.face_model = pickle.load(open("models/face_SVC_model.pkl", 'rb'))
+        # self.encoder = LabelEncoder()
+        # self.encoder.classes_ = np.load('models/face_encoder.npy')
 
         # self.landmark = landmark_pb2.NormalizedLandmarkList()
     def predict(self, landmark):
@@ -82,9 +82,12 @@ class Prediction:
 
 
     def face_predict(self, img):
+        face_model = pickle.load(open("models/face_SVC_model.pkl", 'rb'))
         y_pred = self.facenet.embeddings(img)
-        face_name = self.face_model.predict(y_pred)
-        final_name = self.encoder.inverse_transform(face_name)[0]
+        face_name = face_model.predict(y_pred)
+        encoder = LabelEncoder()
+        encoder.classes_ = np.load('models/face_encoder.npy')
+        final_name = encoder.inverse_transform(face_name)[0]
         return final_name
 
     def predict_df(self, landmark):

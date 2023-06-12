@@ -5,6 +5,7 @@ from predictions.live_predict import LivePredict
 from predictions.predict_landmarks import Prediction
 from data_processing.converter import Converter
 from database.database_operations import CassandraCRUD
+from models.default_model import Default_Model
 import pandas as pd
 import json
 import time
@@ -230,6 +231,12 @@ def process_train():
                                  )
     print("trained success")
     return jsonify({'message': 'Images processed successfully.'})
+
+@app.route('/default')
+def def_model():
+    dm = Default_Model()
+    dm.default_model()
+    return 'The Model Was Reset'
 
 
 

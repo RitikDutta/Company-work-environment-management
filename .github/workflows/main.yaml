@@ -45,7 +45,7 @@ jobs:
       - name: SSH to EC2 instance and execute commands
         uses: appleboy/ssh-action@master
         with:
-          host: 3.7.253.116
+          host: 3.110.131.85
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |

@@ -50,3 +50,13 @@ sudo apt-get install ffmpeg</code>
 </ul>
 <h3>Privacy</h3>
 <p>We take the privacy of our employees seriously. No images or videos of users are transmitted to the central server - only summary data about their activities is sent. All data is handled in accordance with relevant privacy laws and regulations.</p> 
+
+
+<h3>Documentations</h3>
+<ul>
+<li><a href="https://drive.google.com/file/d/1AklwM-ee5oV5-tXLqZOMUypA3-NK9k7q/view?usp=drive_link" target="_blank">High Level Document</a></li>
+<li><a href="https://drive.google.com/file/d/1bv3qBY-Y_MwoefvuD7Ghl-Dmeja9cOYJ/view?usp=drive_link" target="_blank">Low Level Document</a></li>
+<li><a href="https://drive.google.com/file/d/13nqPTGPSfySnF50K661maTPHLHOMXQVb/view?usp=drive_link" target="_blank">Architecture</a></li>
+<li><a href="https://drive.google.com/file/d/1sOjQ_sQB-01kMbWRDC2V7iIgmY16xvu6/view?usp=drive_link" target="_blank">Wireframe</a></li>
+<li><a href="https://drive.google.com/file/d/16Y0Kh0AyLUmWiQ7mSjctqdRTUDfTLEIH/view?usp=drive_link" target="_blank">Detailed Project Report</a></li>
+</ul>

@@ -6,6 +6,9 @@ class database_handler():
     def __init__(self):
         self.countert = counter()
         self.db = CassandraCRUD("test_key")
+        self.db.create_daily_activity_table()
+        self.db.create_total_activity_table()
+        
         # self.predictions = live_predict()
     
     def df_handle(self, action, name):

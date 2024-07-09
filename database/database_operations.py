@@ -11,7 +11,8 @@ class CassandraCRUD:
     def __init__(self, keyspace):
         self.keyspace = keyspace
         cloud_config= {'secure_connect_bundle': 'secure-connect-test.zip'}
-        auth_provider = PlainTextAuthProvider('biTEHxuyRqFgCcFpnEMOMvkN', 'PyqybfDQpPOaLp44hlWbb1Yb7bZ2Mn5Mt-_DGMOs.qBj.JY.Z,FAnB.9ncCD+F2EsSJ7W6XD,l,3S9gZW7bgWSMQDHKvTI7Iams2.hRRz6W_biRSrttvGgs1WhAl-in9')
+        # auth_provider = PlainTextAuthProvider('biTEHxuyRqFgCcFpnEMOMvkN', 'PyqybfDQpPOaLp44hlWbb1Yb7bZ2Mn5Mt-_DGMOs.qBj.JY.Z,FAnB.9ncCD+F2EsSJ7W6XD,l,3S9gZW7bgWSMQDHKvTI7Iams2.hRRz6W_biRSrttvGgs1WhAl-in9')
+        auth_provider = PlainTextAuthProvider('yqCpbXlWPImsPnONUwicylkI', 'LCFZJ,o+9G.ueZWhwZrs1Fw9XAzICnZImZLR3pPk-33raS_xa-gL.wy6wHlUQXwHwINZAzbq,voaaxqgXS89r6hlqzz,JbSr8plDhUiT3+o_GQQMXZM_F5Al4PZHR9v8')
         self.cluster = Cluster(cloud=cloud_config, auth_provider=auth_provider)
         self.session = self.cluster.connect(self.keyspace)
         self.counter = counter()
